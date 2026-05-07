@@ -870,10 +870,10 @@ function calculate() {
       for(var sc2=0;sc2<stCombos.length;sc2++) if(stCombos[sc2].p.indexOf(name)>=0){isComboPlant=true;break;}
       h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">';
       h+='<span style="font-size:13px;font-weight:600;flex:1;">'+name+'</span>';
-      h+='<span class="pill r-'+s.r+'">'+cnt2+'×</span>';
+      if(cnt2>1) h+='<span class="pill r-'+s.r+'">'+cnt2+'×</span>';
       if(isComboPlant) h+='<span style="font-size:11px;color:var(--green);">✨</span>';
-      h+='<span class="chip">'+xpc2+' XP</span>';
-      h+='<span class="chip">'+yld2.toLocaleString()+' $K</span>';
+      h+='<span class="chip">'+xpc2+' XP/cycle</span>';
+      h+='<span class="chip">'+yld2.toLocaleString()+' $K/cycle</span>';
       h+='</div>';
     }
     if (stationAllocs[si].length===0) h+='<div style="font-size:13px;color:var(--text3);">Empty station</div>';
@@ -1048,7 +1048,40 @@ function renderGL() {
     for(var i=0;i<st.sl.length;i++){var ss=glStat(st.sl[i]);if(ss==='ready')rdy++;if(ss==='late')late2++;totY+=glYld(st.sl[i]);}
     var badge=late2?'<span style="font-size:11px;background:var(--rbg);color:var(--red);padding:2px 9px;border-radius:6px;font-weight:700;">⚠️ '+late2+' overdue</span>':rdy?'<span style="font-size:11px;background:var(--gbg);color:var(--green);padding:2px 9px;border-radius:6px;font-weight:700;">✅ '+rdy+' ready</span>':'';
     h+='<div class="station">';
-    h+='<div class="shead"><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;font-weight:700;">🏠 '+st.name+'</span>'+badge+'</div>';
+    // Active combos in this station
+    var glStSet={};
+    for(var gi=0;gi<st.sl.length;gi++) if(st.sl[gi].n) glStSet[st.sl[gi].n]=1;
+    var glCombos=[];
+    for(var ci=0;ci<COMBOS.length;ci++){
+      var combo=COMBOS[ci]; var ok=true;
+      for(var pi=0;pi<combo.p.length;pi++) if(!glStSet[combo.p[pi]]){ok=false;break;}
+      if(ok) glCombos.push(combo);
+    }
+    glCombos.sort(function(a,b){return parseFloat(b.b)-parseFloat(a.b);});
+
+    var comboBadges='';
+    for(var ci=0;ci<glCombos.length;ci++){
+      comboBadges+='<span style="font-size:11px;background:var(--gbg);color:var(--green);padding:2px 8px;border-radius:5px;font-weight:700;margin-left:4px;">'+glCombos[ci].e+' '+glCombos[ci].name+' '+glCombos[ci].b+'</span>';
+    }
+    if(!glCombos.length){
+      // Show partial combos (1 away)
+      var partial=[];
+      for(var ci=0;ci<COMBOS.length;ci++){
+        var combo=COMBOS[ci];
+        var missing=[];
+        for(var pi=0;pi<combo.p.length;pi++) if(!glStSet[combo.p[pi]]) missing.push(combo.p[pi]);
+        if(missing.length===1&&combo.p.length<=5) partial.push({combo:combo,missing:missing[0]});
+      }
+      partial.sort(function(a,b){return parseFloat(b.combo.b)-parseFloat(a.combo.b);});
+      if(partial.length>0){
+        comboBadges='<span style="font-size:11px;background:var(--abg);color:var(--amber);padding:2px 8px;border-radius:5px;font-weight:600;margin-left:4px;">⚡ Almost: '+partial[0].combo.name+' (need '+partial[0].missing+')</span>';
+      }
+    }
+
+    h+='<div class="shead">';
+    h+='<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">';
+    h+='<span style="font-size:14px;font-weight:700;">🏠 '+st.name+'</span>'+badge+comboBadges;
+    h+='</div>';
     h+='<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--text2);font-family:JetBrains Mono,monospace;">'+totY.toLocaleString()+' $K</span><button class="btn btn-red btn-sm" onclick="rmStation('+st.id+')">Remove</button></div></div>';
 
     for(var i=0;i<st.sl.length;i++){
@@ -1066,6 +1099,59 @@ function renderGL() {
       var stxt={growing:'🌱 Growing',soon:'⚡ Almost ready',ready:'✅ Harvest!',late:'🔴 Overdue!',empty:''}[stat];
       var selO=opts.replace('value="'+sl.n+'"','value="'+sl.n+'" selected');
 
+      // Replacement recommendation for soon/ready/late plants
+      var replRec='';
+      if(stat==='soon'||stat==='ready'||stat==='late') {
+        // Find best replacement: score by (1) completes/extends combo in station, (2) XP/h
+        var otherNames={};
+        for(var gi=0;gi<st.sl.length;gi++) if(st.sl[gi].n&&gi!==i) otherNames[st.sl[gi].n]=1;
+
+        var bestRepl=null, bestReplScore=-1;
+        for(var ri=0;ri<S.length;ri++){
+          var rs=S[ri];
+          if(!(inv[rs.n]||0)) continue; // not in inventory
+          if(rs.r==='legendary'&&roomSlots<8) continue;
+
+          var rscore=0;
+          // XP/h base score
+          rscore += rs.xp*2.0*1.5/rs.h; // assume aero for scoring
+
+          // Combo score: simulate adding this plant to station (replacing current)
+          var testSet={};
+          for(var k in otherNames) testSet[k]=1;
+          testSet[rs.n]=1;
+
+          for(var ci=0;ci<COMBOS.length;ci++){
+            var combo=COMBOS[ci];
+            if(combo.p.length>5) continue;
+            var have=0;
+            for(var pi=0;pi<combo.p.length;pi++) if(testSet[combo.p[pi]]) have++;
+            var bonus=parseFloat(combo.b.replace('%','').replace('+',''));
+            if(have===combo.p.length) rscore+=bonus*600; // completes combo!
+            else if(have===combo.p.length-1) rscore+=bonus*100;
+          }
+
+          if(rscore>bestReplScore){bestReplScore=rscore;bestRepl=rs;}
+        }
+
+        if(bestRepl){
+          // Check if replacement completes a combo
+          var testSet2={};
+          for(var k in otherNames) testSet2[k]=1;
+          testSet2[bestRepl.n]=1;
+          var completesCombo=null;
+          for(var ci=0;ci<COMBOS.length;ci++){
+            var combo=COMBOS[ci]; var ok=true;
+            for(var pi=0;pi<combo.p.length;pi++) if(!testSet2[combo.p[pi]]){ok=false;break;}
+            if(ok){completesCombo=combo;break;}
+          }
+          var replColor=completesCombo?'var(--green)':'var(--blue)';
+          var replText='→ Plant <strong>'+bestRepl.n+'</strong>';
+          if(completesCombo) replText+=' ✨ triggers '+completesCombo.name+' '+completesCombo.b;
+          replRec='<div style="font-size:11px;color:'+replColor+';margin-top:4px;padding:4px 8px;background:rgba(0,0,0,0.2);border-radius:5px;">'+replText+'</div>';
+        }
+      }
+
       h+='<div class="slot-row '+rc2+'" id="sr-'+st.id+'-'+i+'">';
       h+='<div class="sicon '+ic+'">'+em+'</div>';
       h+='<div style="min-width:0;">';
@@ -1076,7 +1162,9 @@ function renderGL() {
       for(var pi=0;pi<ps.length;pi++) h+='<option value="'+ps[pi]+'"'+(sl.p===ps[pi]?' selected':'')+'>'+ps[pi]+'</option>';
       h+='</select>';
       if(sl.n) h+='<span style="font-size:11px;color:'+bc2+';">'+stxt+'</span>';
-      h+='</div></div>';
+      h+='</div>';
+      if(replRec) h+=replRec;
+      h+='</div>';
 
       h+='<div>';
       if(sl.n){
