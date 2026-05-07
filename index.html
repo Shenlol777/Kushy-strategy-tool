@@ -443,9 +443,9 @@ function buildInv() {
       h += '<div style="display:flex;gap:5px;margin-top:3px;"><span class="chip">'+s.h+'h</span><span class="chip">'+s.y.toLocaleString()+' $K</span></div></div>';
       h += '<span class="pill r-'+r+'">'+r+'</span>';
       h += '<div style="display:flex;align-items:center;gap:6px;">';
-      h += '<button class="btn btn-ghost btn-sm" onclick="adjQ(''+s.n+'',-1)">−</button>';
-      h += '<input type="number" min="0" max="99" value="'+q+'" id="q_'+k+'" style="width:52px;text-align:center;" onchange="setQ(''+s.n+'',this.value)">';
-      h += '<button class="btn btn-ghost btn-sm" onclick="adjQ(''+s.n+'',1)">+</button>';
+      h += '<button class="btn btn-ghost btn-sm" data-name="'+s.n+'" data-d="-1" onclick="adjQ(this.dataset.name,parseInt(this.dataset.d))">−</button>';
+      h += '<input type="number" min="0" max="99" value="'+q+'" id="q_'+k+'" style="width:52px;text-align:center;" data-name="'+s.n+'" onchange="setQ(this.dataset.name,this.value)">';
+      h += '<button class="btn btn-ghost btn-sm" data-name="'+s.n+'" data-d="1" onclick="adjQ(this.dataset.name,parseInt(this.dataset.d))">+</button>';
       h += '</div></div>';
     }
     h += '</div>';
@@ -537,7 +537,7 @@ function buildStations() {
       var isActive = cur===p;
       var col = {soil:'var(--green)',hydro:'var(--blue)',aero:'var(--purple)'}[p];
       h += '<button ';
-      h += 'onclick="setPth('+i+',''+p+'')" ';
+      h += 'onclick="setPth(parseInt(this.dataset.si),this.dataset.p)" data-si="'+i+'" data-p="'+p+'" ';
       h += 'style="flex:1;padding:6px 2px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:600;cursor:'+(locked?'not-allowed':'pointer')+';';
       h += 'border:1px solid '+(isActive?col:'var(--border2)')+';';
       h += 'background:'+(isActive?'rgba('+{soil:'20,241,149',hydro:'0,212,255',aero:'153,69,255'}[p]+',0.1)':'var(--bg3)')+';';
@@ -1021,12 +1021,12 @@ function renderGL() {
         h+='<span id="gt-'+st.id+'-'+i+'" style="font-size:12px;color:var(--text2);font-family:JetBrains Mono,monospace;min-width:68px;">'+glFmt(ms)+'</span>';
         h+='<div style="display:flex;flex-direction:column;align-items:center;">';
         h+='<button onclick="glADJ('+st.id+','+i+',1,0)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:3px;color:var(--text2);width:24px;height:15px;cursor:pointer;font-size:9px;line-height:1;">▲</button>';
-        h+='<input type="number" min="0" max="99" id="gh-'+st.id+'-'+i+'" value="'+hv+'" style="width:30px;font-size:11px;font-weight:600;padding:1px;border-radius:4px;text-align:center;" onchange="glST('+st.id+','+i+',this.value,document.getElementById('gm-'+st.id+'-'+i+'').value)">';
+        h+='<input type="number" min="0" max="99" id="gh-'+st.id+'-'+i+'" value="'+hv+'" data-sid="'+st.id+'" data-i="'+i+'" data-type="h" style="width:30px;font-size:11px;font-weight:600;padding:1px;border-radius:4px;text-align:center;" onchange="glInput(this)">';
         h+='<button onclick="glADJ('+st.id+','+i+',-1,0)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:3px;color:var(--text2);width:24px;height:15px;cursor:pointer;font-size:9px;line-height:1;">▼</button>';
         h+='</div><span style="font-size:10px;color:var(--text3);">h</span>';
         h+='<div style="display:flex;flex-direction:column;align-items:center;">';
         h+='<button onclick="glADJ('+st.id+','+i+',0,1)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:3px;color:var(--text2);width:24px;height:15px;cursor:pointer;font-size:9px;line-height:1;">▲</button>';
-        h+='<input type="number" min="0" max="59" id="gm-'+st.id+'-'+i+'" value="'+mv+'" style="width:30px;font-size:11px;font-weight:600;padding:1px;border-radius:4px;text-align:center;" onchange="glST('+st.id+','+i+',document.getElementById('gh-'+st.id+'-'+i+'').value,this.value)">';
+        h+='<input type="number" min="0" max="59" id="gm-'+st.id+'-'+i+'" value="'+mv+'" data-sid="'+st.id+'" data-i="'+i+'" data-type="m" style="width:30px;font-size:11px;font-weight:600;padding:1px;border-radius:4px;text-align:center;" onchange="glInput(this)">';
         h+='<button onclick="glADJ('+st.id+','+i+',0,-1)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:3px;color:var(--text2);width:24px;height:15px;cursor:pointer;font-size:9px;line-height:1;">▼</button>';
         h+='</div><span style="font-size:10px;color:var(--text3);">m</span>';
         h+='</div>';
@@ -1069,6 +1069,16 @@ setInterval(function(){
 // ═══════════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════════
+
+function glInput(el) {
+  var sid = parseInt(el.dataset.sid);
+  var i = parseInt(el.dataset.i);
+  var hEl = document.getElementById('gh-'+sid+'-'+i);
+  var mEl = document.getElementById('gm-'+sid+'-'+i);
+  var h2 = hEl ? parseInt(hEl.value)||0 : 0;
+  var m2 = mEl ? parseInt(mEl.value)||0 : 0;
+  glST(sid, i, h2, m2);
+}
 window.onload = function() {
   loadInv();
   buildInv();
