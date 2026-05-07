@@ -757,6 +757,9 @@ function calculate() {
   var SH=336, FERTS=14;
   var rXP=0, rY=0, sXP=0, sY=0;
   var alloc=[]; // flat list for display
+  // allocWithPath stores {name, Ps} so fertilizer can use correct path
+  var allocWithPath=[];
+
   for (var si=0;si<stationAllocs.length;si++) {
     var Ps=PATHS[stPaths[si]||domP];
     var syn=stSyn[si];
@@ -770,21 +773,18 @@ function calculate() {
       sXP+=Math.round(xp*cyc);
       sY+=Math.round(yld*cyc);
       alloc.push(name);
+      allocWithPath.push({s:s, Ps:Ps});
     }
   }
 
-  // Fertilizer — best plant = highest (XP * 1.15) as tiebreaker use yield
+  // Fertilizer — use allocWithPath so each plant gets its correct station path
   var fertTarget=null;
   var bestFertXP=0;
-  var bestFertY=0;
-  for (var i=0;i<alloc.length;i++) {
-    var s=gs(alloc[i]); if(!s) continue;
-    var Ps=PATHS[slotP[i]||domP];
+  for (var i=0;i<allocWithPath.length;i++) {
+    var s=allocWithPath[i].s;
+    var Ps=allocWithPath[i].Ps;
     var fx=Math.round(fxp(s,Ps)*0.15);
-    // Tiebreaker: higher yield wins (Skywalker OG 6600 > others 6000)
-    if (fx>bestFertXP || (fx===bestFertXP && s.y>bestFertY)) {
-      bestFertXP=fx; fertTarget=s; bestFertY=s.y;
-    }
+    if (fx>bestFertXP) { bestFertXP=fx; fertTarget=s; }
   }
   if (fert && fertTarget) sXP += FERTS*bestFertXP;
 
