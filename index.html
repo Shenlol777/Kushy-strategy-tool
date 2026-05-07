@@ -1004,7 +1004,8 @@ function glADJ(sid,i,dh,dm) {
   var me=document.getElementById('gm-'+sid+'-'+i);
   if(!he||!me) return;
   var h2=parseInt(he.value)||0, m2=parseInt(me.value)||0;
-  m2+=dm; h2+=dh;
+  // +/- 1 hour steps
+  h2+=dh; m2+=dm;
   if(m2>=60){m2-=60;h2++;}if(m2<0){m2+=60;h2=Math.max(0,h2-1);}if(h2<0)h2=0;
   he.value=h2;me.value=m2;
   glST(sid,i,h2,m2);
