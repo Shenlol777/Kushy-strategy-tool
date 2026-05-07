@@ -255,6 +255,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
     if (hash === HASH) {
       sessionStorage.setItem('kushy_unlocked', '1');
       document.getElementById('pw-screen').style.display = 'none';
+      initApp();
     } else {
       const inp = document.getElementById('pw-input');
       inp.classList.add('wrong');
@@ -270,13 +271,13 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 <header>
   <div class="logo">KUSHY <span>PROD</span></div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('inventory')">🌿 Inventory</button>
-    <button class="nav-tab" onclick="showPage('strategy')">🧠 Strategy</button>
-    <button class="nav-tab" onclick="showPage('combos')">✨ Combos</button>
-    <button class="nav-tab" onclick="showPage('growlog')">🌱 Grow Log</button>
+    <button class="nav-tab active" onclick="showPage('inventory',this)">🌿 Inventory</button>
+    <button class="nav-tab" onclick="showPage('strategy',this)">🧠 Strategy</button>
+    <button class="nav-tab" onclick="showPage('combos',this)">✨ Combos</button>
+    <button class="nav-tab" onclick="showPage('growlog',this)">🌱 Grow Log</button>
   </div>
 </header>
- 
+
 <!-- ==================== PAGE: LAGER ==================== -->
 <div id="page-inventory" class="page active main">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
@@ -518,7 +519,7 @@ let selectedGrowroom = 8;
 function getStrain(name) { return STRAINS.find(s => s.name === name); }
 
 // ===================== INIT =====================
-window.onload = function() {
+function initApp() {
   loadInventory();
   buildInventoryUI();
   buildCombosUI();
@@ -526,15 +527,23 @@ window.onload = function() {
   initGrowLog();
   const defaultGrowroom = document.querySelector('.growroom-btn[data-slots="8"]');
   if (defaultGrowroom) selectGrowroom(defaultGrowroom);
+}
+
+window.onload = function() {
+  if (sessionStorage.getItem('kushy_unlocked') === '1') {
+    initApp();
+  }
 };
 
 // ===================== NAVIGATION =====================
-function showPage(id) {
+function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
+  const pg = document.getElementById('page-'+id);
+  if (pg) pg.classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  if (btn) btn.classList.add('active');
   if (id === 'combos') buildCombosUI();
+  if (id === 'inventory') buildInventoryUI();
 }
 
 // ===================== LAGER =====================
@@ -614,7 +623,8 @@ function resetInventory() {
 
 function saveAndGoStrategy() {
   saveInventory();
-  document.querySelectorAll('.nav-tab')[1].click();
+  const tabs = document.querySelectorAll('.nav-tab');
+  showPage('strategy', tabs[1]);
 }
 
 function showNotice(id, msg, type) {
