@@ -979,7 +979,12 @@ function glSN(sid,i,v) {
   if(!st) return;
   st.sl[i].n=v;
   var s=gs(v);
-  if(s&&!st.sl[i].mat) st.sl[i].mat=Date.now()+s.h*3600000;
+  if(s) {
+    // Always set timer to full grow time when strain is selected/changed
+    st.sl[i].mat=Date.now()+s.h*3600000;
+  } else {
+    st.sl[i].mat=null;
+  }
   saveGL(); renderGL();
 }
 function glSP(sid,i,v) {
@@ -1218,9 +1223,9 @@ function renderGL() {
         h+='<span id="gt-'+st.id+'-'+i+'" style="font-size:13px;font-weight:600;color:var(--text2);font-family:JetBrains Mono,monospace;min-width:68px;">'+glFmt(ms)+'</span>';
         h+='<div style="display:flex;align-items:center;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:2px 8px;gap:4px;">';
         h+='<button onclick="glADJ('+st.id+','+i+',-1,0)" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px;padding:0 2px;line-height:1;">−</button>';
-        h+='<input type="number" min="0" max="99" id="gh-'+st.id+'-'+i+'" value="'+hv+'" data-sid="'+st.id+'" data-i="'+i+'" data-type="h" style="width:26px;font-size:13px;font-weight:700;border:none;background:transparent;text-align:center;color:var(--text);padding:0;" onchange="glInput(this)">';
+        h+='<input type="number" min="0" max="99" id="gh-'+st.id+'-'+i+'" value="'+hv+'" data-sid="'+st.id+'" data-i="'+i+'" data-type="h" style="width:36px;font-size:13px;font-weight:700;border:none;background:transparent;text-align:center;color:var(--text);padding:0;" onchange="glInput(this)">';
         h+='<span style="font-size:11px;color:var(--text3);">h</span>';
-        h+='<input type="number" min="0" max="59" id="gm-'+st.id+'-'+i+'" value="'+mv+'" data-sid="'+st.id+'" data-i="'+i+'" data-type="m" style="width:26px;font-size:13px;font-weight:700;border:none;background:transparent;text-align:center;color:var(--text);padding:0;" onchange="glInput(this)">';
+        h+='<input type="number" min="0" max="59" id="gm-'+st.id+'-'+i+'" value="'+mv+'" data-sid="'+st.id+'" data-i="'+i+'" data-type="m" style="width:36px;font-size:13px;font-weight:700;border:none;background:transparent;text-align:center;color:var(--text);padding:0;" onchange="glInput(this)">';
         h+='<span style="font-size:11px;color:var(--text3);">m</span>';
         h+='<button onclick="glADJ('+st.id+','+i+',1,0)" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px;padding:0 2px;line-height:1;">+</button>';
         h+='</div>';
