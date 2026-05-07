@@ -377,7 +377,7 @@ var COMBOS = [
   {name:"Safari",              e:"🦁",  p:["Gorilla Glue","White Rhino","Grape Ape"],                         b:"+17.5%"},
   {name:"Silk Road",           e:"🏜",  p:["Hindu Kush","Lebanese Red","Thai Stick","Nepalese Temple"],        b:"+17.5%"},
   {name:"Fruit Stand",         e:"🍉",  p:["Tangie","Banana Punch","Pineapple Express","Cherry Runtz"],        b:"+20%"},
-  {name:"GOAT",                e:"🐐",  p:["Moon Rocks","Godfather OG","Skywalker OG"],                       b:"+30%"}
+  {name:"GOAT",                e:"🐐",  p:["Skywalker OG","Godfather OG","Moon Rocks"],                       b:"+30%"}
 ];
 
 var PATHS = {
@@ -647,9 +647,9 @@ function calculate() {
     var sSize = stSlotCounts[si];
     var stAlloc = [];
 
-    if (goal==='xp'||goal==='yield'||goal==='safe') {
-      // No combo priority — just fill with best strains
-    } else {
+    // ALL goals try combos first — combos give yield bonus which matters for everyone
+    // For 'safe' goal, only use soil combos
+    if (true) {
       // Try to fit a combo in this station
       for (var ci=0;ci<possibleCombos.length;ci++) {
         var combo=possibleCombos[ci];
@@ -777,14 +777,21 @@ function calculate() {
     }
   }
 
-  // Fertilizer — use allocWithPath so each plant gets its correct station path
+  // Fertilizer — find planted strain with highest XP stat (s.xp), use aero/domP
+  // s.xp comparison directly: Skywalker 385 > MoonRocks 350 always wins
   var fertTarget=null;
   var bestFertXP=0;
-  for (var i=0;i<allocWithPath.length;i++) {
-    var s=allocWithPath[i].s;
-    var Ps=allocWithPath[i].Ps;
-    var fx=Math.round(fxp(s,Ps)*0.15);
-    if (fx>bestFertXP) { bestFertXP=fx; fertTarget=s; }
+  var bestBaseXP=0;
+  for (var si2=0;si2<stationAllocs.length;si2++) {
+    var Ps2=PATHS[stPaths[si2]||domP];
+    for (var j=0;j<stationAllocs[si2].length;j++) {
+      var s2=gs(stationAllocs[si2][j]); if(!s2) continue;
+      var fx2=Math.round(fxp(s2,Ps2)*0.15);
+      // Primary: highest base XP stat wins (Skywalker 385 > 350)
+      if (s2.xp>bestBaseXP || (s2.xp===bestBaseXP && fx2>bestFertXP)) {
+        bestFertXP=fx2; fertTarget=s2; bestBaseXP=s2.xp;
+      }
+    }
   }
   if (fert && fertTarget) sXP += FERTS*bestFertXP;
 
