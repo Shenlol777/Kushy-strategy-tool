@@ -1102,53 +1102,76 @@ function renderGL() {
       // Replacement recommendation for soon/ready/late plants
       var replRec='';
       if(stat==='soon'||stat==='ready'||stat==='late') {
-        // Find best replacement: score by (1) completes/extends combo in station, (2) XP/h
-        var otherNames={};
-        for(var gi=0;gi<st.sl.length;gi++) if(st.sl[gi].n&&gi!==i) otherNames[st.sl[gi].n]=1;
+        // Other plants currently in this station (excluding the one being harvested)
+        var stationOthers={};
+        for(var gi=0;gi<st.sl.length;gi++){
+          if(gi!==i && st.sl[gi].n) stationOthers[st.sl[gi].n]=(stationOthers[st.sl[gi].n]||0)+1;
+        }
 
-        var bestRepl=null, bestReplScore=-1;
+        // Score each candidate replacement
+        var candidates=[];
         for(var ri=0;ri<S.length;ri++){
           var rs=S[ri];
-          if(!(inv[rs.n]||0)) continue; // not in inventory
+          if(!(inv[rs.n]||0)) continue;
           if(rs.r==='legendary'&&roomSlots<8) continue;
 
-          var rscore=0;
-          // XP/h base score
-          rscore += rs.xp*2.0*1.5/rs.h; // assume aero for scoring
-
-          // Combo score: simulate adding this plant to station (replacing current)
+          // Build the station set WITH this replacement
           var testSet={};
-          for(var k in otherNames) testSet[k]=1;
+          for(var tk in stationOthers) testSet[tk]=1;
           testSet[rs.n]=1;
+
+          var rscore=0;
+          var completedCombos=[];
+          var partialCombos=[];
 
           for(var ci=0;ci<COMBOS.length;ci++){
             var combo=COMBOS[ci];
             if(combo.p.length>5) continue;
-            var have=0;
-            for(var pi=0;pi<combo.p.length;pi++) if(testSet[combo.p[pi]]) have++;
+
+            // Count how many combo plants are in testSet
+            var haveInTest=0, haveInOthers=0;
+            for(var pi=0;pi<combo.p.length;pi++){
+              if(testSet[combo.p[pi]]) haveInTest++;
+              if(stationOthers[combo.p[pi]]) haveInOthers++;
+            }
+
             var bonus=parseFloat(combo.b.replace('%','').replace('+',''));
-            if(have===combo.p.length) rscore+=bonus*600; // completes combo!
-            else if(have===combo.p.length-1) rscore+=bonus*100;
+
+            if(haveInTest===combo.p.length){
+              // ALL plants present = combo complete
+              completedCombos.push(combo);
+              rscore += bonus * 1000;
+            } else if(haveInOthers===combo.p.length-1 && testSet[rs.n]){
+              // Replacement is the missing piece
+              partialCombos.push(combo);
+              rscore += bonus * 200;
+            } else if(haveInTest>0){
+              rscore += bonus * haveInTest * 5;
+            }
           }
 
-          if(rscore>bestReplScore){bestReplScore=rscore;bestRepl=rs;}
+          // Base XP/h score (lower weight than combo)
+          rscore += rs.xp * 2.0 * 1.5 / rs.h;
+
+          candidates.push({s:rs, score:rscore, completed:completedCombos, partial:partialCombos});
         }
 
-        if(bestRepl){
-          // Check if replacement completes a combo
-          var testSet2={};
-          for(var k in otherNames) testSet2[k]=1;
-          testSet2[bestRepl.n]=1;
-          var completesCombo=null;
-          for(var ci=0;ci<COMBOS.length;ci++){
-            var combo=COMBOS[ci]; var ok=true;
-            for(var pi=0;pi<combo.p.length;pi++) if(!testSet2[combo.p[pi]]){ok=false;break;}
-            if(ok){completesCombo=combo;break;}
+        candidates.sort(function(a,b){return b.score-a.score;});
+
+        if(candidates.length>0){
+          var best=candidates[0];
+          var replColor=best.completed.length>0?'var(--green)':'var(--blue)';
+          var replText='→ <strong>'+best.s.n+'</strong>';
+          if(best.completed.length>0){
+            replText+=' ✨ completes ';
+            for(var ci=0;ci<best.completed.length;ci++){
+              replText+=best.completed[ci].name+' '+best.completed[ci].b;
+              if(ci<best.completed.length-1) replText+=' + ';
+            }
+          } else {
+            replText+=' (best XP/h in this station)';
           }
-          var replColor=completesCombo?'var(--green)':'var(--blue)';
-          var replText='→ Plant <strong>'+bestRepl.n+'</strong>';
-          if(completesCombo) replText+=' ✨ triggers '+completesCombo.name+' '+completesCombo.b;
-          replRec='<div style="font-size:11px;color:'+replColor+';margin-top:4px;padding:4px 8px;background:rgba(0,0,0,0.2);border-radius:5px;">'+replText+'</div>';
+          replRec='<div style="font-size:11px;color:'+replColor+';margin-top:4px;padding:4px 8px;background:rgba(0,0,0,0.15);border-radius:5px;">'+replText+'</div>';
         }
       }
 
