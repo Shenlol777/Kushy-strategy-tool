@@ -589,21 +589,24 @@ function calculate() {
   var legOk = slots>=8;
   var nSt = Math.ceil(slots/5);
 
-  // Build per-slot path list
+  // Build per-station slot counts
+  var stSlotCounts = [];
+  for (var si=0;si<nSt;si++) {
+    stSlotCounts.push(si===nSt-1 ? (slots-(nSt-1)*5) : 5);
+  }
+
+  // Per-slot path list
   var slotP = [];
   for (var si=0;si<nSt;si++) {
-    var sSlots = (si===nSt-1)?(slots-(nSt-1)*5):5;
     var p = stPaths[si]||'aero';
     if (PATHS[p].prem && !premium) p='soil';
-    for (var j=0;j<sSlots;j++) slotP.push(p);
+    for (var j=0;j<stSlotCounts[si];j++) slotP.push(p);
   }
 
   // Dominant path for scoring
   var pc = {soil:0,hydro:0,aero:0};
   for (var i=0;i<slotP.length;i++) pc[slotP[i]]++;
-  var domP = 'soil';
-  if (pc.aero>=pc.hydro && pc.aero>=pc.soil) domP='aero';
-  else if (pc.hydro>=pc.soil) domP='hydro';
+  var domP = pc.aero>=pc.hydro&&pc.aero>=pc.soil?'aero':pc.hydro>=pc.soil?'hydro':'soil';
   var P = PATHS[domP];
 
   // Available seeds
@@ -614,111 +617,175 @@ function calculate() {
   }
 
   if (!avail.length) {
-    document.getElementById('results').innerHTML = '<div class="card"><div class="notice n-warn">⚠️ No seeds in inventory. Fill in the Inventory tab first.</div></div>';
+    document.getElementById('results').innerHTML = '<div class="card"><div class="notice n-warn">No seeds in inventory. Fill in the Inventory tab first.</div></div>';
     return;
   }
 
-  // Active combos
-  var actC = [];
-  for (var i=0;i<COMBOS.length;i++) {
-    var c = COMBOS[i]; var have=true;
-    for (var j=0;j<c.p.length;j++) if (!(inv[c.p[j]]||0)) { have=false; break; }
-    if (have) actC.push(c);
+  // ── STATION-AWARE COMBO ALLOCATION ──
+  // Strategy: for each station, find the best combo that fits in its slots,
+  // then fill remaining slots with highest-scoring singles
+
+  // Build lookup: which combos are possible given inventory
+  var possibleCombos = [];
+  for (var ci=0;ci<COMBOS.length;ci++) {
+    var c2=COMBOS[ci]; var ok=true;
+    for (var pi=0;pi<c2.p.length;pi++) if (!(inv[c2.p[pi]]||0)){ok=false;break;}
+    if (ok && c2.p.length<=5) possibleCombos.push(c2);
   }
 
-  // Score strain
-  function cscore(name) {
-    var sc=0;
-    for (var i=0;i<actC.length;i++) {
-      for (var j=0;j<actC[i].p.length;j++) if (actC[i].p[j]===name) { sc+=3; break; }
-    }
-    return sc;
-  }
+  // Sort combos by value: bonus % descending, then plant count ascending (efficient)
+  possibleCombos.sort(function(a,b){
+    return parseFloat(b.b)-parseFloat(a.b) || a.p.length-b.p.length;
+  });
 
-  function score(item) {
-    var s=item.s;
-    var xph = expc(s,P,false)/s.h;
-    var yld = eyd(s,P,title,0);
-    var cs = cscore(s.n);
-    if (goal==='xp')    return xph*1000+cs*50;
-    if (goal==='yield') return yld+cs*500;
-    if (goal==='combo') return cs*10000+yld;
-    if (goal==='safe')  return (s.r==='common'||s.r==='uncommon'?yld:yld*0.5)+cs*200;
-    return xph*200+yld*0.5+cs*300;
-  }
+  // Allocate stations
+  var stationAllocs = []; // array of arrays of strain names per station
+  var usedQty = {};
+  for (var i=0;i<S.length;i++) usedQty[S[i].n]=0;
 
-  avail.sort(function(a,b){ return score(b)-score(a); });
+  for (var si=0;si<nSt;si++) {
+    var sSize = stSlotCounts[si];
+    var stAlloc = [];
 
-  // Allocate slots
-  var used={}, alloc=[];
-  for (var i=0;i<avail.length;i++) used[avail[i].s.n]=0;
-
-  // Combo-first for combo/balanced
-  if (goal==='combo'||goal==='balanced') {
-    for (var ci=0;ci<actC.length;ci++) {
-      for (var pi=0;pi<actC[ci].p.length;pi++) {
-        var pn=actC[ci].p[pi];
-        var av=null; for(var k=0;k<avail.length;k++) if(avail[k].s.n===pn){av=avail[k];break;}
-        if (av&&alloc.length<slots&&(used[pn]||0)<av.qty) { alloc.push(pn); used[pn]=(used[pn]||0)+1; }
+    if (goal==='xp'||goal==='yield'||goal==='safe') {
+      // No combo priority — just fill with best strains
+    } else {
+      // Try to fit a combo in this station
+      for (var ci=0;ci<possibleCombos.length;ci++) {
+        var combo=possibleCombos[ci];
+        if (combo.p.length > sSize) continue;
+        // Check we have enough qty for all plants
+        var canFit=true;
+        for (var pi=0;pi<combo.p.length;pi++) {
+          if ((usedQty[combo.p[pi]]||0) >= (inv[combo.p[pi]]||0)) {canFit=false;break;}
+        }
+        if (!canFit) continue;
+        // Place combo plants
+        for (var pi=0;pi<combo.p.length;pi++) {
+          stAlloc.push(combo.p[pi]);
+          usedQty[combo.p[pi]] = (usedQty[combo.p[pi]]||0)+1;
+        }
+        break; // one combo per station
       }
     }
+
+    // Fill remaining slots — prioritize plants that extend combos within this station
+    var Ps = PATHS[stPaths[si]||domP];
+
+    while (stAlloc.length < sSize) {
+      var bestName = null;
+      var bestScore = -1;
+
+      for (var ri=0;ri<avail.length;ri++) {
+        var item = avail[ri];
+        if ((usedQty[item.s.n]||0) >= item.qty) continue;
+
+        var score = 0;
+
+        // Base score: XP/h or yield depending on goal
+        var baseScore = goal==='xp' ? expc(item.s,Ps,false)/item.s.h :
+                        goal==='yield' ? eyd(item.s,Ps,title,0) :
+                        expc(item.s,Ps,false)/item.s.h * 0.5 + eyd(item.s,Ps,title,0) * 0.001;
+        score += baseScore;
+
+        // Combo extension bonus: check if adding this plant to current stAlloc triggers or extends a combo
+        // Build current station set + this candidate
+        var testSet = {};
+        for (var ti=0;ti<stAlloc.length;ti++) testSet[stAlloc[ti]]=1;
+        testSet[item.s.n] = 1;
+        var testSize = stAlloc.length + 1;
+
+        for (var ci=0;ci<COMBOS.length;ci++) {
+          var combo = COMBOS[ci];
+          if (combo.p.length > sSize) continue; // won't fit in station
+
+          // Count how many plants of this combo are already in station
+          var have = 0;
+          for (var pi=0;pi<combo.p.length;pi++) if (testSet[combo.p[pi]]) have++;
+
+          var comboBonus = parseFloat(combo.b.replace('%','').replace('+',''));
+
+          if (have === combo.p.length) {
+            // Complete combo! Huge bonus
+            score += comboBonus * 500;
+          } else if (have === combo.p.length - 1) {
+            // One away — good progress
+            score += comboBonus * 100;
+          } else if (have > 0) {
+            score += comboBonus * have * 10;
+          }
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestName = item.s.n;
+        }
+      }
+
+      if (!bestName) break;
+      stAlloc.push(bestName);
+      usedQty[bestName] = (usedQty[bestName]||0)+1;
+    }
+
+    stationAllocs.push(stAlloc);
   }
 
-  var more=true;
-  while (alloc.length<slots && more) {
-    more=false;
-    for (var i=0;i<avail.length;i++) {
-      if (alloc.length>=slots) break;
-      var item=avail[i];
-      if ((used[item.s.n]||0)<item.qty) { alloc.push(item.s.n); used[item.s.n]=(used[item.s.n]||0)+1; more=true; }
+  // ── COMPUTE TRIGGERED COMBOS (per station!) ──
+  var trig = [];
+  var trigStations = []; // which station each combo is in
+  for (var si=0;si<stationAllocs.length;si++) {
+    var stSet={};
+    for (var i=0;i<stationAllocs[si].length;i++) stSet[stationAllocs[si][i]]=1;
+    for (var ci=0;ci<COMBOS.length;ci++) {
+      var combo=COMBOS[ci]; var ok=true;
+      for (var pi=0;pi<combo.p.length;pi++) if (!stSet[combo.p[pi]]){ok=false;break;}
+      if (ok) { trig.push(combo); trigStations.push(si); }
     }
   }
 
-  // Count by strain
-  var cnt={};
-  for (var i=0;i<alloc.length;i++) cnt[alloc[i]]=(cnt[alloc[i]]||0)+1;
-
-  // Triggered combos
-  var allocSet={};
-  for (var i=0;i<alloc.length;i++) allocSet[alloc[i]]=1;
-  var trig=[];
-  for (var i=0;i<COMBOS.length;i++) {
-    var c=COMBOS[i]; var ok=true;
-    for (var j=0;j<c.p.length;j++) if (!allocSet[c.p[j]]) { ok=false; break; }
-    if (ok) trig.push(c);
+  // Synergy bonus per station
+  var stSyn = [];
+  for (var si=0;si<nSt;si++) {
+    var syn=0;
+    for (var ti=0;ti<trig.length;ti++) {
+      if (trigStations[ti]===si) syn+=parseFloat(trig[ti].b.replace('%','').replace('+',''))/100;
+    }
+    stSyn.push(Math.min(syn,0.60));
   }
 
-  // Synergy bonus (midpoint, additive, capped at 60%)
-  var syn=0;
-  for (var i=0;i<trig.length;i++) {
-    syn += parseFloat(trig[i].b.replace('%','').replace('+',''))/100;
-  }
-  syn = Math.min(syn, 0.60);
-
-  // Season totals using per-slot paths
+  // ── TOTALS ──
   var SH=336, FERTS=14;
   var rXP=0, rY=0, sXP=0, sY=0;
-  var slotIdx=0;
-  var keys=Object.keys(cnt);
-  for (var ki=0;ki<keys.length;ki++) {
-    var name=keys[ki]; var c2=cnt[name];
-    var s=gs(name); if(!s) continue;
-    // gather paths for this strain's slots
-    for (var ci2=0;ci2<c2;ci2++) {
-      var sp=slotP[slotIdx]||domP; slotIdx++;
-      var Ps=PATHS[sp];
+  var alloc=[]; // flat list for display
+  for (var si=0;si<stationAllocs.length;si++) {
+    var Ps=PATHS[stPaths[si]||domP];
+    var syn=stSyn[si];
+    for (var i=0;i<stationAllocs[si].length;i++) {
+      var name=stationAllocs[si][i];
+      var s=gs(name); if(!s) continue;
       var xp=expc(s,Ps,false);
       var yld=eyd(s,Ps,title,syn);
       var cyc=SH/s.h;
       rXP+=xp; rY+=yld;
       sXP+=Math.round(xp*cyc);
       sY+=Math.round(yld*cyc);
+      alloc.push(name);
     }
   }
-  if (fert && avail[0]) sXP += FERTS*Math.round(fxp(avail[0].s,PATHS[stPaths[0]||domP])*0.15);
+
+  // Fertilizer
+  var fertTarget=null;
+  var bestFertXP=0;
+  for (var i=0;i<alloc.length;i++) {
+    var s=gs(alloc[i]); if(!s) continue;
+    var Ps=PATHS[slotP[i]||domP];
+    var fx=Math.round(fxp(s,Ps)*0.15);
+    if (fx>bestFertXP){bestFertXP=fx;fertTarget=s;}
+  }
+  if (fert && fertTarget) sXP += FERTS*bestFertXP;
 
   var maxH=0;
-  for (var i=0;i<alloc.length;i++) { var s=gs(alloc[i]); if(s&&s.h>maxH)maxH=s.h; }
+  for (var i=0;i<alloc.length;i++){var s=gs(alloc[i]);if(s&&s.h>maxH)maxH=s.h;}
   var empty=slots-alloc.length;
   var pct=Math.min(100,Math.round(sXP/100000*100));
   var bc=pct>=100?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
@@ -739,107 +806,87 @@ function calculate() {
   h+='<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;font-weight:600;">L20 this season</span>';
   h+='<span style="font-size:13px;font-family:JetBrains Mono,monospace;color:'+bc+';">'+sXP.toLocaleString()+' / 100,000 ('+pct+'%)</span></div>';
   h+='<div class="bar-wrap"><div class="bar-fill" style="width:'+pct+'%;background:'+bc+';"></div></div>';
-  h+=pct>=100?'<p style="font-size:12px;color:var(--green);margin-top:6px;font-weight:600;">✅ You WILL reach L20 this season!</p>':'<p style="font-size:12px;color:var(--text3);margin-top:6px;">Missing '+(100000-sXP).toLocaleString()+' XP</p>';
+  h+=pct>=100?'<p style="font-size:12px;color:var(--green);margin-top:6px;font-weight:600;">You WILL reach L20 this season!</p>':'<p style="font-size:12px;color:var(--text3);margin-top:6px;">Missing '+(100000-sXP).toLocaleString()+' XP</p>';
   h+='</div>';
 
-  // Per-round
+  // Per round
   h+='<div class="card"><div class="slabel">Per round</div><div class="grid3" style="gap:10px;">';
   h+='<div class="mbox"><div class="mval" style="font-size:20px;color:var(--blue);">'+rXP.toLocaleString()+'</div><div class="mlbl">XP</div></div>';
   h+='<div class="mbox"><div class="mval" style="font-size:20px;color:var(--green);">'+rY.toLocaleString()+'</div><div class="mlbl">$KUSHY</div></div>';
   h+='<div class="mbox"><div class="mval" style="font-size:20px;color:var(--purple);">'+(slots-empty)+'/'+slots+'</div><div class="mlbl">Slots used</div></div>';
   h+='</div></div>';
 
-  // Station summary
-  var stSum='';
-  for (var i=0;i<nSt;i++) stSum+='S'+(i+1)+':'+(stPaths[i]||'aero')+(i<nSt-1?' · ':'');
-  h+='<div class="notice n-blue">🏠 '+stSum+'</div>';
-
-  // Warnings
-  if (empty>0) h+='<div class="notice n-warn">⚠️ '+empty+' slot(s) empty — not enough seeds.</div>';
+  // Notices
   var hasAero=false; for(var i=0;i<stPaths.length&&i<nSt;i++) if(stPaths[i]==='aero')hasAero=true;
   var hasHydro=false; for(var i=0;i<stPaths.length&&i<nSt;i++) if(stPaths[i]==='hydro')hasHydro=true;
-  if (hasAero) h+='<div class="notice n-warn">⚡ Aero fail: seed destroyed, 0 yield — but ~'+Math.round(fxp(avail[0].s,PATHS.aero)*0.35)+' XP still granted.</div>';
-  if (hasHydro) h+='<div class="notice n-warn">⚡ Hydro: 15% half yield. XP always full.</div>';
-  if (trig.length>0) h+='<div class="notice n-green">✨ '+trig.length+' combo(s) active → +'+Math.round(syn*100)+'% yield!</div>';
-  if (fert&&avail[0]) h+='<div class="notice n-blue">🧪 Apply fertilizer to '+avail[0].s.n+' → +15% XP this harvest.</div>';
-  h+='<div class="notice n-blue">⏱ Harvest within 2h of maturity for 100% yield. After 8h → 40% floor.</div>';
+  if (empty>0) h+='<div class="notice n-warn">'+empty+' slot(s) empty — not enough seeds.</div>';
+  if (hasAero&&fertTarget) h+='<div class="notice n-warn">Aero: seed destroyed = 0 yield but ~'+Math.round(fxp(fertTarget,PATHS.aero)*0.35)+' XP still granted on fail.</div>';
+  if (hasHydro) h+='<div class="notice n-warn">Hydro: 15% chance half yield. XP always full.</div>';
+  if (trig.length>0) h+='<div class="notice n-green">'+trig.length+' combo(s) active in their stations!</div>';
+  if (fert&&fertTarget) h+='<div class="notice n-blue">Apply fertilizer to '+fertTarget.n+' — +'+bestFertXP+' XP this harvest.</div>';
+  h+='<div class="notice n-blue">Harvest within 2h for 100% yield. After 8h = 40% floor.</div>';
 
-  // Planting plan
-  h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
-  h+='<div class="slabel" style="margin:0;">Planting Plan ('+alloc.length+'/'+slots+')</div>';
-  if(goal==='xp') h+='<span style="font-size:11px;color:var(--blue);font-weight:600;">sorted by XP/h ↓</span>';
-  h+='</div>';
+  // Station breakdown
+  h+='<div class="card"><div class="slabel">Station Plan</div>';
+  for (var si=0;si<stationAllocs.length;si++) {
+    var Ps=PATHS[stPaths[si]||domP];
+    var syn=stSyn[si];
+    var stCombo=null;
+    for(var ti=0;ti<trig.length;ti++) if(trigStations[ti]===si){stCombo=trig[ti];break;}
+    var pathCol={soil:'var(--green)',hydro:'var(--blue)',aero:'var(--purple)'}[stPaths[si]||domP];
 
-  slotIdx=0;
-  for (var ri=0;ri<RORD.length;ri++) {
-    var r=RORD[ri];
-    var rkeys=[];
-    for(var k in cnt) { var s2=gs(k); if(s2&&s2.r===r) rkeys.push(k); }
-    for (var ki2=0;ki2<rkeys.length;ki2++) {
-      var name=rkeys[ki2]; var c3=cnt[name]; var s=gs(name); if(!s) continue;
-      var sp=slotP[slotIdx]||domP;
-      var Ps=PATHS[sp];
-      var xph=(expc(s,Ps,false)/s.h).toFixed(1);
+    h+='<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">';
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
+    h+='<span style="font-size:13px;font-weight:700;">Station '+(si+1)+'</span>';
+    h+='<span style="font-size:11px;padding:2px 8px;border-radius:5px;border:1px solid '+pathCol+';color:'+pathCol+';">'+(stPaths[si]||domP)+'</span>';
+    if (stCombo) h+='<span style="font-size:11px;background:var(--gbg);color:var(--green);padding:2px 8px;border-radius:5px;font-weight:700;">'+stCombo.e+' '+stCombo.name+' '+stCombo.b+'</span>';
+    h+='</div>';
+
+    // Count strains in this station
+    var stCnt={};
+    for(var i=0;i<stationAllocs[si].length;i++) stCnt[stationAllocs[si][i]]=(stCnt[stationAllocs[si][i]]||0)+1;
+    var stKeys=Object.keys(stCnt);
+    for(var ki=0;ki<stKeys.length;ki++){
+      var name=stKeys[ki]; var cnt2=stCnt[name]; var s=gs(name); if(!s) continue;
       var xpc2=expc(s,Ps,false);
       var yld2=eyd(s,Ps,title,syn);
-      var cyc2=(SH/s.h).toFixed(1);
-      var pp=Math.round(c3/slots*100);
-      var isC=false; for(var ti=0;ti<trig.length;ti++){for(var pi2=0;pi2<trig[ti].p.length;pi2++) if(trig[ti].p[pi2]===name){isC=true;break;}if(isC)break;}
-      var isF=fert&&avail[0]&&name===avail[0].s.n;
-      slotIdx+=c3;
-
-      h+='<div style="display:grid;grid-template-columns:1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">';
-      h+='<div>';
-      h+='<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;">';
-      h+='<span style="font-size:14px;font-weight:600;">'+name+'</span>';
-      h+='<span class="pill r-'+r+'">'+c3+'×</span>';
-      h+='<span class="chip">'+sp+'</span>';
-      if(isC) h+='<span style="font-size:11px;color:var(--green);">✨combo</span>';
-      if(isF) h+='<span style="font-size:11px;color:var(--blue);">🧪fert</span>';
+      var isComboPlant=stCombo&&stCombo.p.indexOf(name)>=0;
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">';
+      h+='<span style="font-size:13px;font-weight:600;flex:1;">'+name+'</span>';
+      h+='<span class="pill r-'+s.r+'">'+cnt2+'×</span>';
+      if(isComboPlant) h+='<span style="font-size:11px;color:var(--green);">✨</span>';
+      h+='<span class="chip">'+xpc2+' XP</span>';
+      h+='<span class="chip">'+yld2.toLocaleString()+' $K</span>';
       h+='</div>';
-      h+='<div style="display:flex;gap:5px;flex-wrap:wrap;">';
-      h+='<span class="chip">'+xph+' XP/h</span>';
-      h+='<span class="chip">'+xpc2+' XP/cycle</span>';
-      h+='<span class="chip">'+cyc2+' cycles</span>';
-      h+='<span class="chip">'+s.h+'h</span>';
-      if(sp==='aero') h+='<span class="chip">'+Math.round(fxp(s,PATHS.aero)*0.35)+' XP fail</span>';
-      h+='</div>';
-      h+='<div class="bar-wrap" style="margin-top:5px;"><div class="bar-fill" style="width:'+pp+'%;background:'+RCOL[r]+';"></div></div>';
-      h+='</div>';
-      h+='<div style="text-align:right;">';
-      h+='<div style="font-size:15px;font-weight:700;color:var(--blue);">'+(xpc2*c3).toLocaleString()+'</div>';
-      h+='<div style="font-size:10px;color:var(--text3);">XP/round</div>';
-      h+='<div style="font-size:13px;font-weight:600;color:var(--green);margin-top:2px;">'+(yld2*c3).toLocaleString()+' $K</div>';
-      h+='</div></div>';
     }
+    if (stationAllocs[si].length===0) h+='<div style="font-size:13px;color:var(--text3);">Empty station</div>';
+    h+='</div>';
   }
   h+='</div>';
 
-  // Active combos
+  // Active combos detail
   if (trig.length>0) {
     h+='<div class="card"><div class="slabel">Active Combos</div>';
     for (var i=0;i<trig.length;i++) {
-      var c=trig[i];
+      var combo=trig[i];
       h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">';
-      h+='<div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">'+c.e+' '+c.name+'</div>';
+      h+='<div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">'+combo.e+' '+combo.name+' — Station '+(trigStations[i]+1)+'</div>';
       h+='<div style="display:flex;gap:3px;flex-wrap:wrap;">';
-      for(var pi3=0;pi3<c.p.length;pi3++){var s3=gs(c.p[pi3]);h+='<span class="pill r-'+(s3?s3.r:'common')+'">'+c.p[pi3]+'</span>';}
-      h+='</div></div><span style="font-size:14px;font-weight:700;color:var(--green);">'+c.b+'</span></div>';
+      for(var pi=0;pi<combo.p.length;pi++){var s2=gs(combo.p[pi]);h+='<span class="pill r-'+(s2?s2.r:'common')+'">'+combo.p[pi]+'</span>';}
+      h+='</div></div><span style="font-size:14px;font-weight:700;color:var(--green);">'+combo.b+'</span></div>';
     }
     h+='</div>';
   }
 
   // XP tips
   if (goal==='xp') {
-    h+='<div class="card" style="border-color:var(--bbd);">';
-    h+='<div class="slabel" style="color:var(--blue);">🏆 Tips for Rank #1</div>';
+    h+='<div class="card" style="border-color:var(--bbd);"><div class="slabel" style="color:var(--blue);">Tips for Rank #1</div>';
     h+='<div style="font-size:13px;color:var(--text2);line-height:1.9;">';
-    h+='<div>⭐ <b style="color:var(--text)">Priority:</b> Legendary Aero (40.6 XP/h) → Epic Aero (32.7) → Uncommon Aero (28.6)</div>';
-    h+='<div>🧪 <b style="color:var(--text)">Fertilizer:</b> Always on Legendary — +'+Math.round(FERTS*350*2.0*PREM*0.15).toLocaleString()+' XP over season</div>';
-    h+='<div>🔴 <b style="color:var(--text)">Aero fail:</b> Seed destroyed but ~367 XP still granted. Worth it.</div>';
-    h+='<div>⏱ <b style="color:var(--text)">Timing:</b> Every missed Legendary Aero cycle = 1,050 XP lost</div>';
-    h+='<div>🌿 <b style="color:var(--text)">After L20:</b> Prestige → Gas+ pays 22,000 $KASH per 70k XP run</div>';
-    h+='<div>👥 <b style="color:var(--text)">Club:</b> 100 active members = ×1.5 $KASH multiplier</div>';
+    h+='<div>Priority: Legendary Aero (40.6 XP/h) > Epic Aero (32.7) > Uncommon Aero (28.6)</div>';
+    h+='<div>Fertilizer: Always on Legendary — +'+Math.round(FERTS*350*2.0*PREM*0.15).toLocaleString()+' XP over season</div>';
+    h+='<div>Combos: Place combo plants in the SAME station to activate bonus</div>';
+    h+='<div>After L20: Prestige runs — Gas+ pays 22,000 $KASH per 70k XP</div>';
+    h+='<div>Club: 100 active members = x1.5 $KASH multiplier</div>';
     h+='</div></div>';
   }
 
