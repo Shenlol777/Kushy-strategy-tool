@@ -362,8 +362,21 @@ function adjQty(name,d){
   var inp=document.getElementById('qty-'+k); if(!inp) return;
   var v=Math.max(0,(inventory[name]||0)+d);
   inventory[name]=v; inp.value=v;
+  autoSaveInv();
 }
-function setQty(name,val){inventory[name]=Math.max(0,parseInt(val)||0);}
+function setQty(name,val){inventory[name]=Math.max(0,parseInt(val)||0);autoSaveInv();}
+var _saveTimer=null;
+function autoSaveInv(){
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(function(){
+    STRAINS.forEach(function(s){
+      var inp=document.getElementById('qty-'+s.name.replace(/\s/g,'_'));
+      if(inp) inventory[s.name]=parseInt(inp.value)||0;
+    });
+    try{localStorage.setItem('kushy_inv',JSON.stringify(inventory));}catch(e){}
+  },500);
+}
+
 function saveInventory(){
   STRAINS.forEach(function(s){
     var inp=document.getElementById('qty-'+s.name.replace(/\s/g,'_'));
