@@ -6,913 +6,1083 @@
 <title>Kushy Prod — Strategy Tool</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#0a0b0f; --bg2:#111318; --bg3:#1a1d26; --bg4:#222533;
-  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
-  --text:#f0f0f0; --text2:#9098a8; --text3:#5a6070;
-  --green:#14f195; --green-bg:rgba(20,241,149,0.1); --green-border:rgba(20,241,149,0.25);
-  --purple:#9945ff; --purple-bg:rgba(153,69,255,0.1); --purple-border:rgba(153,69,255,0.25);
-  --amber:#ffd740; --amber-bg:rgba(255,215,64,0.1); --amber-border:rgba(255,215,64,0.25);
-  --blue:#00d4ff; --blue-bg:rgba(0,212,255,0.1); --blue-border:rgba(0,212,255,0.25);
-  --red:#ff4747; --red-bg:rgba(255,71,71,0.1);
+:root{
+  --bg:#0a0b0f;--bg2:#111318;--bg3:#1a1d26;--bg4:#222533;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0f0f0;--text2:#9098a8;--text3:#5a6070;
+  --green:#14f195;--gbg:rgba(20,241,149,0.1);--gbd:rgba(20,241,149,0.25);
+  --blue:#00d4ff;--bbg:rgba(0,212,255,0.1);--bbd:rgba(0,212,255,0.25);
+  --purple:#9945ff;--pbg:rgba(153,69,255,0.1);--pbd:rgba(153,69,255,0.25);
+  --amber:#ffd740;--abg:rgba(255,215,64,0.1);--abd:rgba(255,215,64,0.25);
+  --red:#ff4747;--rbg:rgba(255,71,71,0.1);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;}
-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
-.logo{font-size:18px;font-weight:700;letter-spacing:.05em;}.logo span{color:var(--green);}
+body{background:var(--bg);color:var(--text);font-family:"Space Grotesk",sans-serif;min-height:100vh;}
+
+/* NAV */
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:50;}
+.logo{font-size:18px;font-weight:700;letter-spacing:.05em;}
+.logo span{color:var(--green);}
 .nav-tabs{display:flex;gap:4px;}
-.nav-tab{padding:6px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:all .15s;font-family:inherit;}
+.nav-tab{padding:6px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:inherit;}
 .nav-tab:hover{background:var(--bg3);color:var(--text);}
 .nav-tab.active{background:var(--bg3);color:var(--green);}
+
+/* PAGES */
 .main{max-width:1200px;margin:0 auto;padding:2rem;}
 .page{display:none;}.page.active{display:block;}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
-.section-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
-.rarity-pill{display:inline-flex;align-items:center;font-size:11px;font-weight:600;letter-spacing:.05em;padding:3px 9px;border-radius:6px;white-space:nowrap;}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:16px;}
+.slabel{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;white-space:nowrap;}
 .r-common{background:rgba(144,152,168,.15);color:#9098a8;border:1px solid rgba(144,152,168,.2);}
-.r-uncommon{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
-.r-rare{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
-.r-epic{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);}
-.r-legendary{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
-.stat-chip{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg4);color:var(--text2);padding:2px 8px;border-radius:5px;}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit;}
-.btn-primary{background:var(--green);color:#0a0f0a;}.btn-primary:hover{opacity:.88;}
+.r-uncommon{background:var(--gbg);color:var(--green);border:1px solid var(--gbd);}
+.r-rare{background:var(--bbg);color:var(--blue);border:1px solid var(--bbd);}
+.r-epic{background:var(--pbg);color:var(--purple);border:1px solid var(--pbd);}
+.r-legendary{background:var(--abg);color:var(--amber);border:1px solid var(--abd);}
+
+/* CHIPS */
+.chip{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:12px;background:var(--bg4);color:var(--text2);padding:2px 8px;border-radius:5px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;}
+.btn-green{background:var(--green);color:#0a0f0a;}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
-.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-ghost:hover{background:var(--bg3);}
+.btn-red{background:var(--rbg);color:var(--red);border:1px solid rgba(255,71,71,.2);}
 .btn-sm{padding:6px 12px;font-size:13px;border-radius:6px;}
-.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,71,71,.2);}
-input[type=number],select{background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit;width:100%;outline:none;transition:border-color .15s;}
-input[type=number]:focus,select:focus{border-color:var(--green);}
+
+/* FORM */
+select,input[type=number]{background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit;width:100%;outline:none;}
+select:focus,input[type=number]:focus{border-color:var(--green);}
 label{font-size:13px;color:var(--text2);display:block;margin-bottom:6px;}
 .field{margin-bottom:14px;}
-.strain-entry{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
-.strain-entry:last-child{border-bottom:none;}
-.path-row{display:flex;gap:10px;margin-bottom:16px;}
-.path-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;text-align:center;font-family:inherit;font-size:14px;font-weight:600;transition:all .15s;}
-.path-btn.sel-soil{border-color:var(--green);color:var(--green);background:var(--green-bg);}
-.path-btn.sel-hydro{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);}
-.path-btn.sel-aero{border-color:var(--purple);color:var(--purple);background:var(--purple-bg);}
-.growroom-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text2);cursor:pointer;font-family:inherit;padding:12px 8px;text-align:center;transition:all .15s;width:100%;}
-.growroom-btn:hover{background:var(--bg4);color:var(--text);}
-.growroom-btn.selected{border-color:var(--green);color:var(--green);background:var(--green-bg);}
-.metric-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1rem;}
-.metric-val{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;}
-.metric-lbl{font-size:12px;color:var(--text3);margin-top:2px;}
-.metric-green{color:var(--green);}.metric-blue{color:var(--blue);}.metric-amber{color:var(--amber);}
-.combo-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
-.combo-card.available{border-color:var(--green);background:rgba(20,241,149,.05);}
-.combo-card.partial{border-color:var(--amber);}
+
+/* NOTICES */
 .notice{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:10px;}
-.notice-warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);}
-.notice-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
-.notice-info{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
-.notice-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,71,71,.2);}
-.alloc-bar-wrap{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;width:100%;}
-.alloc-bar{height:100%;border-radius:4px;}
-.inner-tabs{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap;}
-.inner-tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:inherit;transition:all .15s;}
-.inner-tab:hover{background:var(--bg3);color:var(--text);}
-.inner-tab.active{background:var(--bg3);border-color:var(--green);color:var(--green);}
+.n-warn{background:var(--abg);color:var(--amber);border:1px solid var(--abd);}
+.n-green{background:var(--gbg);color:var(--green);border:1px solid var(--gbd);}
+.n-blue{background:var(--bbg);color:var(--blue);border:1px solid var(--bbd);}
+.n-red{background:var(--rbg);color:var(--red);border:1px solid rgba(255,71,71,.2);}
+
+/* LAYOUT */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-.station-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
-.station-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg3);border-bottom:1px solid var(--border);}
-.plant-row-gl{display:grid;grid-template-columns:44px 1fr 210px 110px 38px;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);}
-.plant-row-gl:last-child{border-bottom:none;}
-.plant-row-gl.st-ready{background:rgba(20,241,149,.04);}
-.plant-row-gl.st-soon{background:rgba(255,215,64,.04);}
-.plant-row-gl.st-late{background:rgba(255,71,71,.06);}
-.plant-icon-gl{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;}
-.ic-common{background:rgba(144,152,168,.15);}.ic-uncommon{background:rgba(20,241,149,.12);}
-.ic-rare{background:rgba(0,212,255,.12);}.ic-epic{background:rgba(153,69,255,.12);}
-.ic-legendary{background:rgba(255,215,64,.12);}.ic-empty{background:var(--bg4);}
-.prog-bar-bg{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
-.prog-bar-fill{height:100%;border-radius:3px;}
-#pw-screen{position:fixed;inset:0;background:#0a0b0f;display:flex;align-items:center;justify-content:center;z-index:9999;}
-#pw-box{background:#111318;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2.5rem 2rem;width:320px;display:flex;flex-direction:column;align-items:center;gap:16px;}
-#pw-logo{font-size:22px;font-weight:700;letter-spacing:.05em;color:#f0f0f0;}
-#pw-logo span{color:#14f195;}
-#pw-input{width:100%;padding:12px 16px;border-radius:10px;background:#1a1d26;border:1px solid rgba(255,255,255,.13);color:#f0f0f0;font-size:16px;font-family:'Space Grotesk',sans-serif;outline:none;text-align:center;letter-spacing:.1em;}
-#pw-input:focus{border-color:#14f195;}
-#pw-input.shake{animation:pwshake .3s;border-color:#ff4747;}
-#pw-btn{width:100%;padding:12px;border-radius:10px;background:#14f195;color:#0a0f0a;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;}
-#pw-err{font-size:13px;color:#ff4747;min-height:18px;}
-@keyframes pwshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
-@media(max-width:700px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}.main{padding:1rem;}header{padding:0 1rem;}.plant-row-gl{grid-template-columns:36px 1fr auto;}}
+
+/* INVENTORY */
+.strain-row{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);}
+.strain-row:last-child{border-bottom:none;}
+
+/* GROWROOM BUTTONS */
+.gr-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text2);cursor:pointer;font-family:inherit;padding:10px 6px;text-align:center;width:100%;}
+.gr-btn.active{border-color:var(--green);color:var(--green);background:var(--gbg);}
+
+/* PATH BUTTONS */
+.path-btn{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;text-align:center;font-family:inherit;font-size:13px;font-weight:600;}
+.path-soil.active{border-color:var(--green);color:var(--green);background:var(--gbg);}
+.path-hydro.active{border-color:var(--blue);color:var(--blue);background:var(--bbg);}
+.path-aero.active{border-color:var(--purple);color:var(--purple);background:var(--pbg);}
+
+/* METRICS */
+.mbox{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.mval{font-size:26px;font-weight:700;font-family:"JetBrains Mono",monospace;}
+.mlbl{font-size:12px;color:var(--text3);margin-top:2px;}
+
+/* BAR */
+.bar-wrap{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden;width:100%;}
+.bar-fill{height:100%;border-radius:4px;}
+
+/* COMBO */
+.combo-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;}
+.combo-card.have{border-color:var(--green);background:rgba(20,241,149,.04);}
+.combo-card.some{border-color:var(--amber);}
+
+/* INNER TABS */
+.itabs{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap;}
+.itab{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:inherit;}
+.itab.active{background:var(--bg3);border-color:var(--green);color:var(--green);}
+
+/* GROW LOG */
+.station{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.shead{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg3);border-bottom:1px solid var(--border);}
+.slot-row{display:grid;grid-template-columns:40px 1fr 200px 100px 36px;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);}
+.slot-row:last-child{border-bottom:none;}
+.slot-row.soon{background:rgba(255,215,64,.04);}
+.slot-row.ready{background:rgba(20,241,149,.04);}
+.slot-row.late{background:rgba(255,71,71,.05);}
+.sicon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ic-c{background:rgba(144,152,168,.12);}
+.ic-u{background:rgba(20,241,149,.1);}
+.ic-r{background:rgba(0,212,255,.1);}
+.ic-e{background:rgba(153,69,255,.1);}
+.ic-l{background:rgba(255,215,64,.1);}
+.ic-x{background:var(--bg4);}
+
+/* PASSWORD */
+#pwscreen{position:fixed;inset:0;background:#0a0b0f;display:flex;align-items:center;justify-content:center;z-index:9999;}
+#pwbox{background:#111318;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2.5rem 2rem;width:320px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+#pwlogo{font-size:20px;font-weight:700;letter-spacing:.05em;}
+#pwlogo span{color:#14f195;}
+#pwinput{width:100%;padding:11px 14px;border-radius:10px;background:#1a1d26;border:1px solid rgba(255,255,255,.13);color:#f0f0f0;font-size:16px;font-family:"Space Grotesk",sans-serif;outline:none;text-align:center;letter-spacing:.1em;}
+#pwinput:focus{border-color:#14f195;}
+#pwbtn{width:100%;padding:11px;border-radius:10px;background:#14f195;color:#0a0f0a;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;}
+#pwerr{font-size:13px;color:#ff4747;min-height:16px;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.shake{animation:shake .3s;border-color:#ff4747 !important;}
+
+@media(max-width:700px){
+  .grid2,.grid3,.grid4{grid-template-columns:1fr;}
+  .main{padding:1rem;}
+  header{padding:0 1rem;}
+  .slot-row{grid-template-columns:36px 1fr auto;}
+}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
 </style>
 </head>
 <body>
 
-<div id="pw-screen">
-  <div id="pw-box">
-    <div id="pw-logo">KUSHY <span>PROD</span></div>
-    <div style="font-size:13px;color:#9098a8;text-align:center;">Enter password to continue</div>
-    <input id="pw-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPw()">
-    <button id="pw-btn" onclick="checkPw()">Unlock</button>
-    <div id="pw-err"></div>
+<!-- PASSWORD — own script, always works -->
+<div id="pwscreen">
+  <div id="pwbox">
+    <div id="pwlogo">KUSHY <span>PROD</span></div>
+    <p style="font-size:13px;color:#9098a8;">Enter password to continue</p>
+    <input id="pwinput" type="password" placeholder="••••••••">
+    <button id="pwbtn">Unlock</button>
+    <div id="pwerr"></div>
   </div>
 </div>
-
 <script>
-// Password — runs independently, cannot be blocked by main script errors
 (function(){
-  var PW='blueberryjam777';
-  function unlock(){
-    sessionStorage.setItem('kushy_unlocked','1');
-    var s=document.getElementById('pw-screen');
-    if(s) s.style.display='none';
-  }
-  if(sessionStorage.getItem('kushy_unlocked')==='1') unlock();
-  window.checkPw=function(){
-    var val=document.getElementById('pw-input').value;
-    if(!val) return;
-    if(val===PW){ unlock(); }
-    else{
-      var inp=document.getElementById('pw-input');
-      var err=document.getElementById('pw-err');
-      if(err) err.textContent='Wrong password';
-      inp.value='';
-      inp.classList.add('shake');
-      setTimeout(function(){inp.classList.remove('shake');},400);
+  var PW = 'blueberryjam777';
+  var el = document.getElementById('pwscreen');
+  function unlock() { sessionStorage.setItem('ku','1'); el.style.display='none'; }
+  if (sessionStorage.getItem('ku')==='1') unlock();
+  function tryUnlock() {
+    var v = document.getElementById('pwinput').value;
+    if (!v) return;
+    if (v === PW) {
+      unlock();
+    } else {
+      var inp = document.getElementById('pwinput');
+      document.getElementById('pwerr').textContent = 'Wrong password';
+      inp.value = '';
+      inp.className = 'shake';
+      setTimeout(function(){ inp.className = ''; }, 400);
     }
-  };
+  }
+  document.getElementById('pwbtn').addEventListener('click', tryUnlock);
+  document.getElementById('pwinput').addEventListener('keydown', function(e){
+    if (e.key==='Enter') tryUnlock();
+  });
 })();
 </script>
 
 <header>
   <div class="logo">KUSHY <span>PROD</span></div>
   <div class="nav-tabs">
-    <button class="nav-tab active" id="tab-inventory" onclick="showPage('inventory',this)">🌿 Inventory</button>
-    <button class="nav-tab" id="tab-strategy" onclick="showPage('strategy',this)">🧠 Strategy</button>
-    <button class="nav-tab" id="tab-combos" onclick="showPage('combos',this)">✨ Combos</button>
-    <button class="nav-tab" id="tab-growlog" onclick="showPage('growlog',this)">🌱 Grow Log</button>
+    <button class="nav-tab active" onclick="nav(this,'inventory')">🌿 Inventory</button>
+    <button class="nav-tab" onclick="nav(this,'strategy')">🧠 Strategy</button>
+    <button class="nav-tab" onclick="nav(this,'combos')">✨ Combos</button>
+    <button class="nav-tab" onclick="nav(this,'growlog')">🌱 Grow Log</button>
   </div>
 </header>
 
+<!-- INVENTORY -->
 <div id="page-inventory" class="page active main">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-    <div><h1 style="font-size:22px;font-weight:700;margin-bottom:4px;">My Inventory</h1><p style="color:var(--text2);font-size:14px;">Enter all seeds you own. 0 = not in stock.</p></div>
-    <button class="btn btn-ghost btn-sm" onclick="resetInventory()">Reset</button>
+    <div>
+      <h1 style="font-size:22px;font-weight:700;">My Inventory</h1>
+      <p style="color:var(--text2);font-size:14px;margin-top:4px;">Enter how many seeds you own. Auto-saves.</p>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="resetInv()">Reset</button>
   </div>
-  <div id="inv-sections"></div>
-  <div style="margin-top:1.5rem;display:flex;gap:12px;align-items:center;">
-    <button class="btn btn-primary" onclick="saveAndGoStrategy()">Calculate Strategy →</button>
-    <button class="btn btn-ghost" onclick="saveInventory();document.getElementById('save-msg').style.display='inline';setTimeout(function(){document.getElementById('save-msg').style.display='none';},2000)">Save</button>
-    <span id="save-msg" style="display:none;font-size:13px;color:var(--green);">Saved ✓</span>
+  <div id="inv-body"></div>
+  <div style="margin-top:1.5rem;display:flex;gap:10px;">
+    <button class="btn btn-green" onclick="saveInv();nav(document.querySelector('#tab-strategy'),'strategy')">Calculate Strategy →</button>
+    <button class="btn btn-ghost" onclick="saveInv();showMsg('inv-msg','Saved ✓')">Save</button>
+    <span id="inv-msg" style="display:none;font-size:13px;color:var(--green);align-self:center;"></span>
   </div>
 </div>
 
+<!-- STRATEGY -->
 <div id="page-strategy" class="page main">
   <h1 style="font-size:22px;font-weight:700;margin-bottom:4px;">Strategy Calculator</h1>
-  <p style="color:var(--text2);font-size:14px;margin-bottom:1.5rem;">Configure your run. Calculates optimal layout including combos.</p>
+  <p style="color:var(--text2);font-size:14px;margin-bottom:1.5rem;">Configure your run — each station gets its own path.</p>
   <div class="grid2" style="gap:20px;align-items:start;">
     <div>
-      <div class="card" style="margin-bottom:16px;">
-        <div class="section-label">Growroom</div>
+      <!-- Growroom -->
+      <div class="card">
+        <div class="slabel">Growroom</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button class="growroom-btn" data-slots="4" onclick="selectGrowroom(this)">🛏 Bedroom<br><span style="font-size:11px;opacity:.6;">4 Slots · 2×2</span><br><span style="font-size:10px;opacity:.4;">Free start</span></button>
-          <button class="growroom-btn" data-slots="8" onclick="selectGrowroom(this)">🏚 Attic<br><span style="font-size:11px;opacity:.6;">8 Slots · 2×4</span><br><span style="font-size:10px;opacity:.4;">L8 Free / L6 Prem</span></button>
-          <button class="growroom-btn" data-slots="15" onclick="selectGrowroom(this)">🏠 Garage<br><span style="font-size:11px;opacity:.6;">15 Slots · 3×5</span><br><span style="font-size:10px;opacity:.4;">L14 Free / L11 Prem</span></button>
-          <button class="growroom-btn" data-slots="27" onclick="selectGrowroom(this)">🏗 Basement<br><span style="font-size:11px;opacity:.6;">27 Slots · 3×9</span><br><span style="font-size:10px;opacity:.4;">L18 Free / L15 Prem</span></button>
+          <button class="gr-btn" data-slots="4" onclick="pickRoom(this)">🛏 Bedroom<br><small style="opacity:.6;">4 slots · 1 station</small></button>
+          <button class="gr-btn" data-slots="8" onclick="pickRoom(this)">🏚 Attic<br><small style="opacity:.6;">8 slots · 2 stations</small></button>
+          <button class="gr-btn" data-slots="15" onclick="pickRoom(this)">🏠 Garage<br><small style="opacity:.6;">15 slots · 3 stations</small></button>
+          <button class="gr-btn" data-slots="27" onclick="pickRoom(this)">🏗 Basement<br><small style="opacity:.6;">27 slots · 6 stations</small></button>
         </div>
       </div>
-      <div class="card" style="margin-bottom:16px;">
-        <div class="section-label">Green Pass</div>
-        <select id="t-gpass" onchange="buildStationUI()"><option value="free">Free</option><option value="premium" selected>Premium</option></select>
+      <!-- Pass -->
+      <div class="card">
+        <div class="slabel">Green Pass</div>
+        <select id="s-pass" onchange="buildStations()">
+          <option value="free">Free</option>
+          <option value="premium" selected>Premium</option>
+        </select>
       </div>
-      <div class="card" style="margin-bottom:16px;">
-        <div class="section-label">Stations &amp; Paths</div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Each station can have its own path. Legendary requires Attic or higher.</p>
-        <div id="station-ui"></div>
-        <div id="path-lock-notice" class="notice notice-warn" style="display:none;margin-top:10px;">⚠️ Hydro &amp; Aero require Premium Green Pass.</div>
+      <!-- Stations -->
+      <div class="card">
+        <div class="slabel">Station Paths</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Each station = 5 slots. Pick path per station.</p>
+        <div id="s-stations"></div>
       </div>
-      <div class="card" style="margin-bottom:16px;">
-        <div class="section-label">Boosts</div>
-        <div class="field"><label>Active Title</label>
-          <select id="t-title">
+      <!-- Boosts -->
+      <div class="card">
+        <div class="slabel">Boosts &amp; Goal</div>
+        <div class="field">
+          <label>Active Title (Yield boost only)</label>
+          <select id="s-title">
             <option value="0">No Title</option>
-            <option value="0.005">FARMER (+0.5%)</option>
-            <option value="0.035">GHOST (+3.5%)</option>
-            <option value="0.04">LEGEND (+4%)</option>
-            <option value="0.069">420 OG (+6.9%)</option>
-            <option value="0.06">GOD (+6%)</option>
-            <option value="0.08">PURIST (+8%)</option>
-            <option value="0.02">ALCHEMIST I (+2%)</option>
-            <option value="0.05">ALCHEMIST II (+5%)</option>
-            <option value="0.1">ALCHEMIST III (+10%)</option>
+            <option value="0.005">FARMER +0.5%</option>
+            <option value="0.035">GHOST +3.5%</option>
+            <option value="0.04">LEGEND +4%</option>
+            <option value="0.069">420 OG +6.9%</option>
+            <option value="0.06">GOD +6%</option>
+            <option value="0.08">PURIST +8%</option>
+            <option value="0.02">ALCHEMIST I +2%</option>
+            <option value="0.05">ALCHEMIST II +5%</option>
+            <option value="0.1">ALCHEMIST III +10%</option>
           </select>
         </div>
-        <div class="field"><label>Fertilizer today?</label>
-          <select id="t-fert"><option value="0">No</option><option value="1">Yes (+25% Yield &amp; +15% XP on 1 plant)</option></select>
+        <div class="field">
+          <label>Fertilizer today? (+25% yield &amp; +15% XP on 1 plant)</label>
+          <select id="s-fert">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
         </div>
-        <div class="field"><label>Goal</label>
-          <select id="t-goal">
-            <option value="xp">Max XP (Rank #1)</option>
+        <div class="field">
+          <label>Goal</label>
+          <select id="s-goal">
+            <option value="xp">Max XP — Rank #1</option>
             <option value="yield">Max $KUSHY Yield</option>
             <option value="combo">Max Combos</option>
             <option value="balanced" selected>Balanced</option>
-            <option value="safe">No Risk (Safe)</option>
+            <option value="safe">No Risk (Soil only)</option>
           </select>
         </div>
       </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;" onclick="calculate()">🧠 Calculate Optimal Strategy</button>
+      <button class="btn btn-green" style="width:100%;justify-content:center;padding:13px;" onclick="calculate()">🧠 Calculate</button>
     </div>
-    <div id="results-panel">
-      <div class="card" style="display:flex;align-items:center;justify-content:center;min-height:300px;color:var(--text3);flex-direction:column;gap:12px;">
-        <div style="font-size:32px;">🌿</div>
-        <div style="font-size:14px;">Click "Calculate Optimal Strategy"</div>
+    <div id="results">
+      <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;color:var(--text3);gap:10px;">
+        <div style="font-size:36px;">🌿</div>
+        <div>Click Calculate to see results</div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- COMBOS -->
 <div id="page-combos" class="page main">
   <h1 style="font-size:22px;font-weight:700;margin-bottom:4px;">Secret Combos</h1>
-  <p style="color:var(--text2);font-size:14px;margin-bottom:1.5rem;">All 25 combos. Green = all seeds in stock. Orange = almost. Grey = not possible.</p>
-  <div class="inner-tabs">
-    <button class="inner-tab active" onclick="filterCombos('all',this)">All (25)</button>
-    <button class="inner-tab" onclick="filterCombos('available',this)">✅ Available</button>
-    <button class="inner-tab" onclick="filterCombos('partial',this)">🟡 Almost there</button>
-    <button class="inner-tab" onclick="filterCombos('locked',this)">🔒 Not possible</button>
+  <p style="color:var(--text2);font-size:14px;margin-bottom:1.5rem;">All 25 combos. Based on your current inventory.</p>
+  <div class="itabs">
+    <button class="itab active" onclick="filterC('all',this)">All 25</button>
+    <button class="itab" onclick="filterC('have',this)">✅ Available</button>
+    <button class="itab" onclick="filterC('some',this)">🟡 Almost</button>
+    <button class="itab" onclick="filterC('none',this)">🔒 Locked</button>
   </div>
-  <div id="combos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;"></div>
+  <div id="combo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;"></div>
 </div>
 
+<!-- GROW LOG -->
 <div id="page-growlog" class="page main">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px;">
-    <div><h1 style="font-size:22px;font-weight:700;margin-bottom:4px;">🌱 Grow Log</h1><p style="color:var(--text2);font-size:14px;">Track stations in real-time. Get replacement advice on harvest.</p></div>
-    <button class="btn btn-primary" onclick="addStation()">+ Add Station</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px;">
+    <div>
+      <h1 style="font-size:22px;font-weight:700;">🌱 Grow Log</h1>
+      <p style="color:var(--text2);font-size:14px;margin-top:4px;">5 plants per station. Live countdown.</p>
+    </div>
+    <button class="btn btn-green" onclick="addStation()">+ Add Station</button>
   </div>
-  <div id="gl-empty" style="text-align:center;padding:4rem 2rem;color:var(--text3);">
-    <div style="font-size:48px;margin-bottom:16px;">🪴</div>
-    <div style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--text2);">No stations yet</div>
-    <button class="btn btn-primary" onclick="addStation()">+ Add First Station</button>
+  <div id="gl-empty" style="text-align:center;padding:3rem;color:var(--text3);">
+    <div style="font-size:40px;margin-bottom:12px;">🪴</div>
+    <div style="font-size:15px;margin-bottom:16px;color:var(--text2);">No stations yet</div>
+    <button class="btn btn-green" onclick="addStation()">+ Add First Station</button>
   </div>
-  <div id="gl-stations"></div>
+  <div id="gl-body"></div>
 </div>
 
 <script>
-var STRAINS=[
-  {name:"Panama Red",rarity:"common",baseYield:200,baseXP:70,growHours:6},
-  {name:"Acapulco Gold",rarity:"common",baseYield:200,baseXP:70,growHours:6},
-  {name:"Malawi Gold",rarity:"common",baseYield:200,baseXP:70,growHours:6},
-  {name:"Hindu Kush",rarity:"common",baseYield:200,baseXP:70,growHours:6},
-  {name:"Lebanese Red",rarity:"common",baseYield:200,baseXP:70,growHours:6},
-  {name:"Thai Stick",rarity:"common",baseYield:200,baseXP:70,growHours:6},
-  {name:"Nepalese Temple",rarity:"common",baseYield:200,baseXP:70,growHours:6},
-  {name:"White Rhino",rarity:"common",baseYield:200,baseXP:70,growHours:6},
-  {name:"Maui Wowie",rarity:"uncommon",baseYield:500,baseXP:100,growHours:8},
-  {name:"Pineapple Express",rarity:"uncommon",baseYield:500,baseXP:100,growHours:8},
-  {name:"Bruce Banner",rarity:"uncommon",baseYield:500,baseXP:100,growHours:8},
-  {name:"Animal Mints",rarity:"uncommon",baseYield:500,baseXP:100,growHours:8},
-  {name:"Sunset Sherbet",rarity:"uncommon",baseYield:500,baseXP:100,growHours:8},
-  {name:"Mimosa",rarity:"uncommon",baseYield:500,baseXP:100,growHours:8},
-  {name:"Tangie",rarity:"uncommon",baseYield:500,baseXP:100,growHours:8},
-  {name:"Blueberry",rarity:"rare",baseYield:1200,baseXP:120,growHours:10},
-  {name:"Banana Punch",rarity:"rare",baseYield:1200,baseXP:120,growHours:10},
-  {name:"Blue Cheese",rarity:"rare",baseYield:1200,baseXP:120,growHours:10},
-  {name:"Ghost OG",rarity:"rare",baseYield:1200,baseXP:120,growHours:10},
-  {name:"Biscotti",rarity:"rare",baseYield:1200,baseXP:120,growHours:10},
-  {name:"Mac",rarity:"rare",baseYield:1200,baseXP:120,growHours:10},
-  {name:"Gorilla Glue",rarity:"epic",baseYield:3000,baseXP:200,growHours:14},
-  {name:"Grape Ape",rarity:"epic",baseYield:3000,baseXP:200,growHours:14},
-  {name:"Amnesia Haze",rarity:"epic",baseYield:3000,baseXP:200,growHours:14},
-  {name:"Cherry Runtz",rarity:"epic",baseYield:3000,baseXP:200,growHours:14},
-  {name:"Gary Payton",rarity:"epic",baseYield:3000,baseXP:200,growHours:14},
-  {name:"Moon Rocks",rarity:"legendary",baseYield:6000,baseXP:350,growHours:20},
-  {name:"Godfather OG",rarity:"legendary",baseYield:6000,baseXP:350,growHours:20},
-  {name:"Skywalker OG",rarity:"legendary",baseYield:6600,baseXP:350,growHours:20}
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+var S = [
+  {n:"Panama Red",      r:"common",    y:200,  xp:70,  h:6},
+  {n:"Acapulco Gold",   r:"common",    y:200,  xp:70,  h:6},
+  {n:"Malawi Gold",     r:"common",    y:200,  xp:70,  h:6},
+  {n:"Hindu Kush",      r:"common",    y:200,  xp:70,  h:6},
+  {n:"Lebanese Red",    r:"common",    y:200,  xp:70,  h:6},
+  {n:"Thai Stick",      r:"common",    y:200,  xp:70,  h:6},
+  {n:"Nepalese Temple", r:"common",    y:200,  xp:70,  h:6},
+  {n:"White Rhino",     r:"common",    y:200,  xp:70,  h:6},
+  {n:"Maui Wowie",      r:"uncommon",  y:500,  xp:100, h:8},
+  {n:"Pineapple Express",r:"uncommon", y:500,  xp:100, h:8},
+  {n:"Bruce Banner",    r:"uncommon",  y:500,  xp:100, h:8},
+  {n:"Animal Mints",    r:"uncommon",  y:500,  xp:100, h:8},
+  {n:"Sunset Sherbet",  r:"uncommon",  y:500,  xp:100, h:8},
+  {n:"Mimosa",          r:"uncommon",  y:500,  xp:100, h:8},
+  {n:"Tangie",          r:"uncommon",  y:500,  xp:100, h:8},
+  {n:"Blueberry",       r:"rare",      y:1200, xp:120, h:10},
+  {n:"Banana Punch",    r:"rare",      y:1200, xp:120, h:10},
+  {n:"Blue Cheese",     r:"rare",      y:1200, xp:120, h:10},
+  {n:"Ghost OG",        r:"rare",      y:1200, xp:120, h:10},
+  {n:"Biscotti",        r:"rare",      y:1200, xp:120, h:10},
+  {n:"Mac",             r:"rare",      y:1200, xp:120, h:10},
+  {n:"Gorilla Glue",    r:"epic",      y:3000, xp:200, h:14},
+  {n:"Grape Ape",       r:"epic",      y:3000, xp:200, h:14},
+  {n:"Amnesia Haze",    r:"epic",      y:3000, xp:200, h:14},
+  {n:"Cherry Runtz",    r:"epic",      y:3000, xp:200, h:14},
+  {n:"Gary Payton",     r:"epic",      y:3000, xp:200, h:14},
+  {n:"Moon Rocks",      r:"legendary", y:6000, xp:350, h:20},
+  {n:"Godfather OG",    r:"legendary", y:6000, xp:350, h:20},
+  {n:"Skywalker OG",    r:"legendary", y:6600, xp:350, h:20}
 ];
 
-var COMBOS=[
-  {name:"Pan-American",emoji:"✈️",plants:["Panama Red","Acapulco Gold"],bonus:"+5–10%"},
-  {name:"Cheech & Chong",emoji:"🎭",plants:["Maui Wowie","Acapulco Gold"],bonus:"+5–10%"},
-  {name:"Gold Rush",emoji:"🥇",plants:["Malawi Gold","Acapulco Gold"],bonus:"+5–10%"},
-  {name:"Stoner Movie",emoji:"🎬",plants:["Maui Wowie","Pineapple Express"],bonus:"+5–10%"},
-  {name:"Monster Mash",emoji:"👹",plants:["Bruce Banner","Animal Mints"],bonus:"+10–15%"},
-  {name:"Happy Hour",emoji:"🍹",plants:["Mimosa","Pineapple Express"],bonus:"+10–15%"},
-  {name:"Golden Hour",emoji:"🌅",plants:["Sunset Sherbet","Mimosa"],bonus:"+10–15%"},
-  {name:"Smoothie",emoji:"🍓",plants:["Blueberry","Banana Punch"],bonus:"+10–15%"},
-  {name:"Sunday Chef",emoji:"🍳",plants:["Mimosa","Blue Cheese"],bonus:"+10–15%"},
-  {name:"Rampage",emoji:"💥",plants:["Bruce Banner","Gorilla Glue"],bonus:"+10–15%"},
-  {name:"Sunset Strip",emoji:"🌆",plants:["Sunset Sherbet","Cherry Runtz"],bonus:"+10–15%"},
-  {name:"Cookies All-Star",emoji:"🍪",plants:["Biscotti","Gary Payton"],bonus:"+10–15%"},
-  {name:"Amsterdam Nights",emoji:"🌙",plants:["Amnesia Haze","White Rhino"],bonus:"+10–15%"},
-  {name:"Berry Royale",emoji:"🫐",plants:["Blueberry","Blue Cheese"],bonus:"+10–15%"},
-  {name:"Ghost Story",emoji:"👻",plants:["Ghost OG","Amnesia Haze"],bonus:"+10–15%"},
-  {name:"Apes Together Strong",emoji:"🦍",plants:["Gorilla Glue","Grape Ape"],bonus:"+10–15%"},
-  {name:"The Offer",emoji:"💼",plants:["Godfather OG","Biscotti"],bonus:"+15–20%"},
-  {name:"Dark Side",emoji:"🌑",plants:["Skywalker OG","Ghost OG"],bonus:"+15–20%"},
-  {name:"Hyperspace",emoji:"🌀",plants:["Skywalker OG","Mac"],bonus:"+15–20%"},
-  {name:"Launch Pad",emoji:"🚀",plants:["Moon Rocks","Cherry Runtz"],bonus:"+15–20%"},
-  {name:"Space Monkey",emoji:"🐒",plants:["Moon Rocks","Gorilla Glue"],bonus:"+15–20%"},
-  {name:"Safari",emoji:"🦁",plants:["Gorilla Glue","White Rhino","Grape Ape"],bonus:"+15–20%"},
-  {name:"Silk Road",emoji:"🏜",plants:["Hindu Kush","Lebanese Red","Thai Stick","Nepalese Temple"],bonus:"+15–20%"},
-  {name:"Fruit Stand",emoji:"🍉",plants:["Tangie","Banana Punch","Pineapple Express","Cherry Runtz"],bonus:"+20%"},
-  {name:"GOAT",emoji:"🐐",plants:["Moon Rocks","Godfather OG","Skywalker OG"],bonus:"+30%"}
+var COMBOS = [
+  {name:"Pan-American",        e:"✈️",  p:["Panama Red","Acapulco Gold"],                                     b:"+7.5%"},
+  {name:"Cheech & Chong",      e:"🎭",  p:["Maui Wowie","Acapulco Gold"],                                     b:"+7.5%"},
+  {name:"Gold Rush",           e:"🥇",  p:["Malawi Gold","Acapulco Gold"],                                    b:"+7.5%"},
+  {name:"Stoner Movie",        e:"🎬",  p:["Maui Wowie","Pineapple Express"],                                 b:"+7.5%"},
+  {name:"Monster Mash",        e:"👹",  p:["Bruce Banner","Animal Mints"],                                    b:"+12.5%"},
+  {name:"Happy Hour",          e:"🍹",  p:["Mimosa","Pineapple Express"],                                     b:"+12.5%"},
+  {name:"Golden Hour",         e:"🌅",  p:["Sunset Sherbet","Mimosa"],                                        b:"+12.5%"},
+  {name:"Smoothie",            e:"🍓",  p:["Blueberry","Banana Punch"],                                       b:"+12.5%"},
+  {name:"Sunday Chef",         e:"🍳",  p:["Mimosa","Blue Cheese"],                                           b:"+12.5%"},
+  {name:"Rampage",             e:"💥",  p:["Bruce Banner","Gorilla Glue"],                                    b:"+12.5%"},
+  {name:"Sunset Strip",        e:"🌆",  p:["Sunset Sherbet","Cherry Runtz"],                                  b:"+12.5%"},
+  {name:"Cookies All-Star",    e:"🍪",  p:["Biscotti","Gary Payton"],                                         b:"+12.5%"},
+  {name:"Amsterdam Nights",    e:"🌙",  p:["Amnesia Haze","White Rhino"],                                     b:"+12.5%"},
+  {name:"Berry Royale",        e:"🫐",  p:["Blueberry","Blue Cheese"],                                        b:"+12.5%"},
+  {name:"Ghost Story",         e:"👻",  p:["Ghost OG","Amnesia Haze"],                                        b:"+12.5%"},
+  {name:"Apes Together Strong",e:"🦍",  p:["Gorilla Glue","Grape Ape"],                                       b:"+12.5%"},
+  {name:"The Offer",           e:"💼",  p:["Godfather OG","Biscotti"],                                        b:"+17.5%"},
+  {name:"Dark Side",           e:"🌑",  p:["Skywalker OG","Ghost OG"],                                        b:"+17.5%"},
+  {name:"Hyperspace",          e:"🌀",  p:["Skywalker OG","Mac"],                                             b:"+17.5%"},
+  {name:"Launch Pad",          e:"🚀",  p:["Moon Rocks","Cherry Runtz"],                                      b:"+17.5%"},
+  {name:"Space Monkey",        e:"🐒",  p:["Moon Rocks","Gorilla Glue"],                                      b:"+17.5%"},
+  {name:"Safari",              e:"🦁",  p:["Gorilla Glue","White Rhino","Grape Ape"],                         b:"+17.5%"},
+  {name:"Silk Road",           e:"🏜",  p:["Hindu Kush","Lebanese Red","Thai Stick","Nepalese Temple"],        b:"+17.5%"},
+  {name:"Fruit Stand",         e:"🍉",  p:["Tangie","Banana Punch","Pineapple Express","Cherry Runtz"],        b:"+20%"},
+  {name:"GOAT",                e:"🐐",  p:["Moon Rocks","Godfather OG","Skywalker OG"],                       b:"+30%"}
 ];
 
-var PATHS={
-  soil: {yieldMult:1.0,xpMult:1.0,destroyChance:0.0,halfYieldChance:0.0,requiresPremium:false},
-  hydro:{yieldMult:1.3,xpMult:1.3,destroyChance:0.0,halfYieldChance:0.15,requiresPremium:true},
-  aero: {yieldMult:1.9,xpMult:2.0,destroyChance:0.35,halfYieldChance:0.0,requiresPremium:true}
+var PATHS = {
+  soil:  {ym:1.0, xm:1.0, dc:0.0,  hy:0.0,  prem:false},
+  hydro: {ym:1.3, xm:1.3, dc:0.0,  hy:0.15, prem:true},
+  aero:  {ym:1.9, xm:2.0, dc:0.35, hy:0.0,  prem:true}
 };
-var PREMIUM_XP=1.5;
-var RARITY_ORDER=["legendary","epic","rare","uncommon","common"];
-var RARITY_COLORS={common:"#9098a8",uncommon:"#14f195",rare:"#00d4ff",epic:"#9945ff",legendary:"#ffd740"};
-var GL_EMOJIS={common:"🌿",uncommon:"🌱",rare:"💙",epic:"💜",legendary:"⭐"};
+var PREM = 1.5;
+var RORD = ["legendary","epic","rare","uncommon","common"];
+var RCOL = {common:"#9098a8",uncommon:"#14f195",rare:"#00d4ff",epic:"#9945ff",legendary:"#ffd740"};
+var GLEM = {common:"🌿",uncommon:"🌱",rare:"💙",epic:"💜",legendary:"⭐"};
 
-var inventory={};
-var selectedPath="soil";
-var selectedGrowroom=8;
-var stations=[];
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+var inv = {};          // strain name -> qty
+var roomSlots = 8;     // selected growroom slots
+var stPaths = [];      // path per station
+var stations = [];     // grow log stations
+var _saveT = null;     // debounce timer
 
-function getStrain(n){return STRAINS.find(function(s){return s.name===n;});}
+function gs(name) { for (var i=0;i<S.length;i++) if (S[i].n===name) return S[i]; return null; }
 
-// ── INIT ──
-function initApp(){
-  try{loadInventory();}catch(e){}
-  try{buildInventoryUI();}catch(e){}
-  try{buildCombosUI();}catch(e){}
-  try{
-    stationPaths=['aero','aero','aero','aero','aero','aero'];
-    var attic=document.querySelector('.growroom-btn[data-slots="8"]');
-    if(attic) selectGrowroom(attic); else buildStationUI();
-  }catch(e){}
-  try{loadGrowLog();renderGL();}catch(e){}
-}
-window.onload=initApp;
-
-// ── NAV ──
-function showPage(id,btn){
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
-  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
-  var pg=document.getElementById('page-'+id);
-  if(pg) pg.classList.add('active');
-  if(btn) btn.classList.add('active');
-  if(id==='combos') buildCombosUI();
-}
-
-// ── INVENTORY ──
-function buildInventoryUI(){
-  var el=document.getElementById('inv-sections');
-  if(!el) return;
-  var labels={legendary:"⭐ Legendary",epic:"💜 Epic",rare:"💙 Rare",uncommon:"💚 Uncommon",common:"⬜ Common"};
-  var html='';
-  RARITY_ORDER.forEach(function(r){
-    var strains=STRAINS.filter(function(s){return s.rarity===r;});
-    html+='<div class="card" style="margin-bottom:14px;"><div class="section-label">'+labels[r]+'</div>';
-    strains.forEach(function(s){
-      var k=s.name.replace(/\s/g,'_');
-      var q=inventory[s.name]||0;
-      html+='<div class="strain-entry">';
-      html+='<div><div style="font-size:14px;font-weight:500;">'+s.name+'</div>';
-      html+='<div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;"><span class="stat-chip">'+s.growHours+'h</span><span class="stat-chip">'+s.baseYield.toLocaleString()+' $KUSHY</span></div></div>';
-      html+='<span class="rarity-pill r-'+r+'">'+r+'</span>';
-      html+='<div style="display:flex;align-items:center;gap:8px;">';
-      html+='<button class="btn btn-ghost btn-sm" onclick="adjQty(\''+s.name+'\',-1)">−</button>';
-      html+='<input type="number" min="0" max="99" value="'+q+'" id="qty-'+k+'" style="width:55px;text-align:center;" onchange="setQty(\''+s.name+'\',this.value)">';
-      html+='<button class="btn btn-ghost btn-sm" onclick="adjQty(\''+s.name+'\',1)">+</button>';
-      html+='</div></div>';
-    });
-    html+='</div>';
-  });
-  el.innerHTML=html;
-}
-function adjQty(name,d){
-  var k=name.replace(/\s/g,'_');
-  var inp=document.getElementById('qty-'+k); if(!inp) return;
-  var v=Math.max(0,(inventory[name]||0)+d);
-  inventory[name]=v; inp.value=v;
-  autoSaveInv();
-}
-function setQty(name,val){inventory[name]=Math.max(0,parseInt(val)||0);autoSaveInv();}
-var _saveTimer=null;
-function autoSaveInv(){
-  clearTimeout(_saveTimer);
-  _saveTimer=setTimeout(function(){
-    STRAINS.forEach(function(s){
-      var inp=document.getElementById('qty-'+s.name.replace(/\s/g,'_'));
-      if(inp) inventory[s.name]=parseInt(inp.value)||0;
-    });
-    try{localStorage.setItem('kushy_inv',JSON.stringify(inventory));}catch(e){}
-  },500);
-}
-
-function saveInventory(){
-  STRAINS.forEach(function(s){
-    var inp=document.getElementById('qty-'+s.name.replace(/\s/g,'_'));
-    if(inp) inventory[s.name]=parseInt(inp.value)||0;
-  });
-  try{localStorage.setItem('kushy_inv',JSON.stringify(inventory));}catch(e){}
-}
-function loadInventory(){try{var d=localStorage.getItem('kushy_inv');if(d)inventory=JSON.parse(d);}catch(e){}}
-function resetInventory(){
-  if(!confirm('Reset inventory?')) return;
-  inventory={};
-  STRAINS.forEach(function(s){var inp=document.getElementById('qty-'+s.name.replace(/\s/g,'_'));if(inp)inp.value=0;});
-}
-function saveAndGoStrategy(){
-  saveInventory();
-  showPage('strategy',document.getElementById('tab-strategy'));
-}
-
-// ── PATH / GROWROOM ──
-function selectGrowroom(btn){
-  if(!btn) return;
-  document.querySelectorAll('.growroom-btn').forEach(function(b){b.classList.remove('selected');});
-  btn.classList.add('selected');
-  selectedGrowroom=parseInt(btn.dataset.slots);
-  buildStationUI();
-}
-// stationPaths: array of path per station e.g. ['aero','aero','hydro']
-var stationPaths=[];
-
-function buildStationUI(){
-  var slots=selectedGrowroom;
-  var premium=document.getElementById('t-gpass')&&document.getElementById('t-gpass').value==='premium';
-  var numStations=Math.ceil(slots/5);
-  var slotsPerStation=5;
-  // adjust last station if not divisible
-  var el=document.getElementById('station-ui'); if(!el) return;
-
-  // keep existing paths if count matches, else reset to aero
-  if(stationPaths.length!==numStations){
-    stationPaths=Array(numStations).fill('aero');
-  }
-
-  var html='';
-  for(var i=0;i<numStations;i++){
-    var stSlots=(i===numStations-1)?(slots-(numStations-1)*slotsPerStation):slotsPerStation;
-    var p=stationPaths[i];
-    html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">';
-    html+='<span style="font-size:13px;font-weight:600;color:var(--text2);min-width:80px;">Station '+(i+1)+'</span>';
-    html+='<span style="font-size:12px;color:var(--text3);min-width:50px;">'+stSlots+' slots</span>';
-    html+='<div style="display:flex;gap:6px;flex:1;">';
-    ['soil','hydro','aero'].forEach(function(k){
-      var locked=k!=='soil'&&!premium;
-      var active=p===k;
-      var colors={soil:'var(--green)',hydro:'var(--blue)',aero:'var(--purple)'};
-      var labels={soil:'🌱 Soil',hydro:'💧 Hydro',aero:'💨 Aero'};
-      html+='<button onclick="setStationPath('+i+',''+k+'')" style="';
-      html+='flex:1;padding:7px 4px;border-radius:8px;border:1px solid ';
-      html+=(active?colors[k]:'var(--border2)')+';background:';
-      html+=(active?'rgba('+{soil:'20,241,149',hydro:'0,212,255',aero:'153,69,255'}[k]+',0.1)':'var(--bg3)')+';';
-      html+='color:'+(active?colors[k]:'var(--text2)')+';cursor:'+(locked?'not-allowed':'pointer')+';';
-      html+='font-family:inherit;font-size:12px;font-weight:600;opacity:'+(locked?'0.4':'1')+';';
-      html+='" '+(locked?'disabled':'')+'>'+labels[k]+'</button>';
-    });
-    html+='</div></div>';
-  }
-  el.innerHTML=html;
-
-  var notice=document.getElementById('path-lock-notice');
-  if(notice) notice.style.display='none';
-}
-
-function setStationPath(idx,path){
-  var premium=document.getElementById('t-gpass')&&document.getElementById('t-gpass').value==='premium';
-  if(path!=='soil'&&!premium) return;
-  stationPaths[idx]=path;
-  buildStationUI();
-}
-
-function updatePathLock(){buildStationUI();}
-function selectPath(p){stationPaths=stationPaths.map(function(){return p;});buildStationUI();}
-
-// ── COMBOS ──
-function getComboStatus(c){
-  var have=c.plants.filter(function(p){return(inventory[p]||0)>0;}).length;
-  return have===c.plants.length?'available':have>0?'partial':'locked';
-}
-function buildCombosUI(){
-  var grid=document.getElementById('combos-grid'); if(!grid) return;
-  saveInventory();
-  var html='';
-  COMBOS.forEach(function(c){
-    var st=getComboStatus(c);
-    var bc=st==='available'?'available':st==='partial'?'partial':'';
-    var sl=st==='available'?'✅ Available':st==='partial'?'🟡 Almost there':'🔒 Not possible';
-    var ss=st==='available'?'background:var(--green-bg);color:var(--green);':st==='partial'?'background:var(--amber-bg);color:var(--amber);':'background:rgba(144,152,168,.1);color:var(--text3);';
-    html+='<div class="combo-card '+bc+'" data-status="'+st+'">';
-    html+='<div style="font-size:13px;font-weight:700;margin-bottom:8px;">'+c.emoji+' '+c.name+'</div>';
-    html+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">';
-    c.plants.forEach(function(p){
-      var s=getStrain(p); var have=(inventory[p]||0)>0;
-      html+='<span class="rarity-pill r-'+(s?s.rarity:'common')+'" style="'+(have?'':'opacity:.4;')+'">'+(have?'✓ ':'')+p+'</span>';
-    });
-    html+='</div><div style="display:flex;align-items:center;justify-content:space-between;">';
-    html+='<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;'+ss+'">'+sl+'</span>';
-    html+='<span style="font-size:12px;color:var(--text3);font-weight:600;">'+c.bonus+'</span></div></div>';
-  });
-  grid.innerHTML=html;
-}
-function filterCombos(type,btn){
-  document.querySelectorAll('.inner-tab').forEach(function(t){t.classList.remove('active');});
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function nav(btn, id) {
+  var pages = document.querySelectorAll('.page');
+  for (var i=0;i<pages.length;i++) pages[i].classList.remove('active');
+  var tabs = document.querySelectorAll('.nav-tab');
+  for (var i=0;i<tabs.length;i++) tabs[i].classList.remove('active');
+  document.getElementById('page-'+id).classList.add('active');
   btn.classList.add('active');
-  document.querySelectorAll('.combo-card').forEach(function(card){
-    card.style.display=(type==='all'||card.dataset.status===type)?'':'none';
-  });
+  if (id==='combos') renderCombos();
 }
 
-// ── XP MATH ──
-function fullXP(s,P){return s.baseXP*P.xpMult*PREMIUM_XP;}
-function expXP(s,P,fert){
-  var full=fullXP(s,P)*(fert?1.15:1);
-  var fail=full*P.destroyChance;
-  return Math.round(full*(1-P.destroyChance)+fail*P.destroyChance);
-}
-function expYield(s,P,title,syn){
-  var base=s.baseYield*P.yieldMult*(1+title)*(1+syn);
-  var risk=P.destroyChance>0?0.65:P.halfYieldChance>0?(1-P.halfYieldChance*0.5):1.0;
-  return Math.round(base*risk);
+function showMsg(id, txt) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = txt;
+  el.style.display = 'inline';
+  setTimeout(function(){ el.style.display='none'; }, 2000);
 }
 
-// ── CALCULATE ──
-function calculate(){
-  saveInventory();
-  buildCombosUI();
-  var slots=selectedGrowroom;
-  var premium=document.getElementById('t-gpass').value==='premium';
-  var title=parseFloat(document.getElementById('t-title').value)||0;
-  var fert=document.getElementById('t-fert').value==='1';
-  var goal=document.getElementById('t-goal').value;
-  var legRoom=slots>=8;
-  var numStations=Math.ceil(slots/5);
+// ═══════════════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════════════
+function buildInv() {
+  var el = document.getElementById('inv-body');
+  if (!el) return;
+  var LABELS = {legendary:"⭐ Legendary",epic:"💜 Epic",rare:"💙 Rare",uncommon:"💚 Uncommon",common:"⬜ Common"};
+  var h = '';
+  for (var ri=0;ri<RORD.length;ri++) {
+    var r = RORD[ri];
+    h += '<div class="card"><div class="slabel">'+LABELS[r]+'</div>';
+    for (var si=0;si<S.length;si++) {
+      var s = S[si];
+      if (s.r !== r) continue;
+      var k = s.n.replace(/ /g,'_');
+      var q = inv[s.n]||0;
+      h += '<div class="strain-row">';
+      h += '<div><div style="font-size:14px;font-weight:500;">'+s.n+'</div>';
+      h += '<div style="display:flex;gap:5px;margin-top:3px;"><span class="chip">'+s.h+'h</span><span class="chip">'+s.y.toLocaleString()+' $K</span></div></div>';
+      h += '<span class="pill r-'+r+'">'+r+'</span>';
+      h += '<div style="display:flex;align-items:center;gap:6px;">';
+      h += '<button class="btn btn-ghost btn-sm" onclick="adjQ(''+s.n+'',-1)">−</button>';
+      h += '<input type="number" min="0" max="99" value="'+q+'" id="q_'+k+'" style="width:52px;text-align:center;" onchange="setQ(''+s.n+'',this.value)">';
+      h += '<button class="btn btn-ghost btn-sm" onclick="adjQ(''+s.n+'',1)">+</button>';
+      h += '</div></div>';
+    }
+    h += '</div>';
+  }
+  el.innerHTML = h;
+}
 
-  // Build slot list with per-station paths
-  // stationPaths[i] = path for station i, each station = 5 slots (last may be fewer)
-  var slotPaths=[];
-  for(var si=0;si<numStations;si++){
-    var stSlots=(si===numStations-1)?(slots-(numStations-1)*5):5;
-    var sp=stationPaths[si]||'aero';
-    if(PATHS[sp].requiresPremium&&!premium) sp='soil';
-    for(var ss=0;ss<stSlots;ss++) slotPaths.push(sp);
+function adjQ(name, d) {
+  var k = name.replace(/ /g,'_');
+  var el = document.getElementById('q_'+k);
+  if (!el) return;
+  var v = Math.max(0, (inv[name]||0)+d);
+  inv[name] = v;
+  el.value = v;
+  autoSave();
+}
+
+function setQ(name, v) {
+  inv[name] = Math.max(0, parseInt(v)||0);
+  autoSave();
+}
+
+function autoSave() {
+  clearTimeout(_saveT);
+  _saveT = setTimeout(function(){
+    for (var i=0;i<S.length;i++) {
+      var el = document.getElementById('q_'+S[i].n.replace(/ /g,'_'));
+      if (el) inv[S[i].n] = parseInt(el.value)||0;
+    }
+    try { localStorage.setItem('ki', JSON.stringify(inv)); } catch(e){}
+  }, 500);
+}
+
+function saveInv() {
+  for (var i=0;i<S.length;i++) {
+    var el = document.getElementById('q_'+S[i].n.replace(/ /g,'_'));
+    if (el) inv[S[i].n] = parseInt(el.value)||0;
+  }
+  try { localStorage.setItem('ki', JSON.stringify(inv)); } catch(e){}
+}
+
+function loadInv() {
+  try { var d=localStorage.getItem('ki'); if(d) inv=JSON.parse(d); } catch(e){}
+}
+
+function resetInv() {
+  if (!confirm('Reset inventory?')) return;
+  inv = {};
+  for (var i=0;i<S.length;i++) {
+    var el = document.getElementById('q_'+S[i].n.replace(/ /g,'_'));
+    if (el) el.value = 0;
+  }
+  try { localStorage.removeItem('ki'); } catch(e){}
+}
+
+// ═══════════════════════════════════════════════
+// STRATEGY — GROWROOM & STATIONS
+// ═══════════════════════════════════════════════
+function pickRoom(btn) {
+  var btns = document.querySelectorAll('.gr-btn');
+  for (var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  roomSlots = parseInt(btn.dataset.slots);
+  buildStations();
+}
+
+function buildStations() {
+  var el = document.getElementById('s-stations');
+  if (!el) return;
+  var premium = document.getElementById('s-pass').value === 'premium';
+  var nSt = Math.ceil(roomSlots/5);
+  if (stPaths.length !== nSt) {
+    stPaths = [];
+    for (var i=0;i<nSt;i++) stPaths.push('aero');
+  }
+  var h = '';
+  for (var i=0;i<nSt;i++) {
+    var sSlots = (i===nSt-1) ? (roomSlots - (nSt-1)*5) : 5;
+    var cur = stPaths[i];
+    h += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">';
+    h += '<span style="font-size:13px;font-weight:600;color:var(--text2);min-width:75px;">Station '+(i+1)+'</span>';
+    h += '<span style="font-size:11px;color:var(--text3);min-width:48px;">'+sSlots+' slots</span>';
+    h += '<div style="display:flex;gap:5px;flex:1;">';
+    var paths = ['soil','hydro','aero'];
+    var icons = {soil:'🌱',hydro:'💧',aero:'💨'};
+    for (var pi=0;pi<paths.length;pi++) {
+      var p = paths[pi];
+      var locked = p!=='soil' && !premium;
+      var isActive = cur===p;
+      var col = {soil:'var(--green)',hydro:'var(--blue)',aero:'var(--purple)'}[p];
+      h += '<button ';
+      h += 'onclick="setPth('+i+',''+p+'')" ';
+      h += 'style="flex:1;padding:6px 2px;border-radius:7px;font-family:inherit;font-size:12px;font-weight:600;cursor:'+(locked?'not-allowed':'pointer')+';';
+      h += 'border:1px solid '+(isActive?col:'var(--border2)')+';';
+      h += 'background:'+(isActive?'rgba('+{soil:'20,241,149',hydro:'0,212,255',aero:'153,69,255'}[p]+',0.1)':'var(--bg3)')+';';
+      h += 'color:'+(isActive?col:'var(--text2)')+';';
+      h += 'opacity:'+(locked?'0.35':'1')+';';
+      h += '"'+(locked?' disabled':'')+'>'+icons[p]+' '+p+'</button>';
+    }
+    h += '</div></div>';
+  }
+  el.innerHTML = h;
+}
+
+function setPth(idx, p) {
+  var premium = document.getElementById('s-pass').value === 'premium';
+  if (p!=='soil' && !premium) return;
+  stPaths[idx] = p;
+  buildStations();
+}
+
+// ═══════════════════════════════════════════════
+// XP & YIELD MATH
+// ═══════════════════════════════════════════════
+function fxp(s, P) { return s.xp * P.xm * PREM; }
+
+function expc(s, P, fert) {
+  var full = fxp(s,P) * (fert ? 1.15 : 1);
+  var fail = full * P.dc;
+  return Math.round(full*(1-P.dc) + fail*P.dc);
+}
+
+function eyd(s, P, title, syn) {
+  var base = s.y * P.ym * (1+title) * (1+syn);
+  var rf = P.dc>0 ? 0.65 : P.hy>0 ? (1-P.hy*0.5) : 1.0;
+  return Math.round(base*rf);
+}
+
+// ═══════════════════════════════════════════════
+// CALCULATE
+// ═══════════════════════════════════════════════
+function calculate() {
+  saveInv();
+  renderCombos();
+
+  var slots = roomSlots;
+  var premium = document.getElementById('s-pass').value==='premium';
+  var title = parseFloat(document.getElementById('s-title').value)||0;
+  var fert = document.getElementById('s-fert').value==='1';
+  var goal = document.getElementById('s-goal').value;
+  var legOk = slots>=8;
+  var nSt = Math.ceil(slots/5);
+
+  // Build per-slot path list
+  var slotP = [];
+  for (var si=0;si<nSt;si++) {
+    var sSlots = (si===nSt-1)?(slots-(nSt-1)*5):5;
+    var p = stPaths[si]||'aero';
+    if (PATHS[p].prem && !premium) p='soil';
+    for (var j=0;j<sSlots;j++) slotP.push(p);
   }
 
-  // Use the dominant path for scoring (most common path)
-  var pathCounts={soil:0,hydro:0,aero:0};
-  slotPaths.forEach(function(p){pathCounts[p]++;});
-  var path=Object.keys(pathCounts).reduce(function(a,b){return pathCounts[a]>pathCounts[b]?a:b;});
-  var P=PATHS[path];
+  // Dominant path for scoring
+  var pc = {soil:0,hydro:0,aero:0};
+  for (var i=0;i<slotP.length;i++) pc[slotP[i]]++;
+  var domP = 'soil';
+  if (pc.aero>=pc.hydro && pc.aero>=pc.soil) domP='aero';
+  else if (pc.hydro>=pc.soil) domP='hydro';
+  var P = PATHS[domP];
 
-  var avail=STRAINS.filter(function(s){
-    if(!legRoom&&s.rarity==='legendary') return false;
-    return(inventory[s.name]||0)>0;
-  }).map(function(s){return Object.assign({},s,{qty:inventory[s.name]||0});});
+  // Available seeds
+  var avail = [];
+  for (var i=0;i<S.length;i++) {
+    if (!legOk && S[i].r==='legendary') continue;
+    if ((inv[S[i].n]||0)>0) avail.push({s:S[i], qty:inv[S[i].n]||0});
+  }
 
-  if(!avail.length){
-    document.getElementById('results-panel').innerHTML='<div class="card"><div class="notice notice-warn">⚠️ No seeds in inventory. Add seeds in the Inventory tab first.</div></div>';
+  if (!avail.length) {
+    document.getElementById('results').innerHTML = '<div class="card"><div class="notice n-warn">⚠️ No seeds in inventory. Fill in the Inventory tab first.</div></div>';
     return;
   }
 
-  var active=COMBOS.filter(function(c){return getComboStatus(c)==='available';});
+  // Active combos
+  var actC = [];
+  for (var i=0;i<COMBOS.length;i++) {
+    var c = COMBOS[i]; var have=true;
+    for (var j=0;j<c.p.length;j++) if (!(inv[c.p[j]]||0)) { have=false; break; }
+    if (have) actC.push(c);
+  }
 
-  function cscore(s){var sc=0;active.forEach(function(c){if(c.plants.indexOf(s.name)>=0)sc+=3;});return sc;}
-  function sscore(s){
-    var xph=expXP(s,P,false)/s.growHours;
-    var yld=expYield(s,P,title,0);
-    var cs=cscore(s);
-    if(goal==='xp')    return xph*1000+cs*50;
-    if(goal==='yield') return yld+cs*500;
-    if(goal==='combo') return cs*10000+yld;
-    if(goal==='safe')  return(s.rarity==='common'||s.rarity==='uncommon'?yld:yld*0.5)+cs*200;
+  // Score strain
+  function cscore(name) {
+    var sc=0;
+    for (var i=0;i<actC.length;i++) {
+      for (var j=0;j<actC[i].p.length;j++) if (actC[i].p[j]===name) { sc+=3; break; }
+    }
+    return sc;
+  }
+
+  function score(item) {
+    var s=item.s;
+    var xph = expc(s,P,false)/s.h;
+    var yld = eyd(s,P,title,0);
+    var cs = cscore(s.n);
+    if (goal==='xp')    return xph*1000+cs*50;
+    if (goal==='yield') return yld+cs*500;
+    if (goal==='combo') return cs*10000+yld;
+    if (goal==='safe')  return (s.r==='common'||s.r==='uncommon'?yld:yld*0.5)+cs*200;
     return xph*200+yld*0.5+cs*300;
   }
 
-  var used={};STRAINS.forEach(function(s){used[s.name]=0;});
-  var alloc=[];
+  avail.sort(function(a,b){ return score(b)-score(a); });
 
-  if(goal==='combo'||goal==='balanced'){
-    active.forEach(function(c){
-      c.plants.forEach(function(p){
-        var s=avail.find(function(a){return a.name===p;});
-        if(s&&alloc.length<slots&&used[p]<s.qty){alloc.push(p);used[p]++;}
-      });
-    });
-  }
+  // Allocate slots
+  var used={}, alloc=[];
+  for (var i=0;i<avail.length;i++) used[avail[i].s.n]=0;
 
-  var sorted=avail.slice().sort(function(a,b){return sscore(b)-sscore(a);});
-  var more=true;
-  while(alloc.length<slots&&more){
-    more=false;
-    for(var i=0;i<sorted.length;i++){
-      if(alloc.length>=slots) break;
-      var s=sorted[i];
-      if(used[s.name]<s.qty){alloc.push(s.name);used[s.name]++;more=true;}
+  // Combo-first for combo/balanced
+  if (goal==='combo'||goal==='balanced') {
+    for (var ci=0;ci<actC.length;ci++) {
+      for (var pi=0;pi<actC[ci].p.length;pi++) {
+        var pn=actC[ci].p[pi];
+        var av=null; for(var k=0;k<avail.length;k++) if(avail[k].s.n===pn){av=avail[k];break;}
+        if (av&&alloc.length<slots&&(used[pn]||0)<av.qty) { alloc.push(pn); used[pn]=(used[pn]||0)+1; }
+      }
     }
   }
 
-  var counts={};
-  alloc.forEach(function(n){counts[n]=(counts[n]||0)+1;});
-  var allocSet=new Set(alloc);
-  var triggered=COMBOS.filter(function(c){return c.plants.every(function(p){return allocSet.has(p);});});
+  var more=true;
+  while (alloc.length<slots && more) {
+    more=false;
+    for (var i=0;i<avail.length;i++) {
+      if (alloc.length>=slots) break;
+      var item=avail[i];
+      if ((used[item.s.n]||0)<item.qty) { alloc.push(item.s.n); used[item.s.n]=(used[item.s.n]||0)+1; more=true; }
+    }
+  }
 
+  // Count by strain
+  var cnt={};
+  for (var i=0;i<alloc.length;i++) cnt[alloc[i]]=(cnt[alloc[i]]||0)+1;
+
+  // Triggered combos
+  var allocSet={};
+  for (var i=0;i<alloc.length;i++) allocSet[alloc[i]]=1;
+  var trig=[];
+  for (var i=0;i<COMBOS.length;i++) {
+    var c=COMBOS[i]; var ok=true;
+    for (var j=0;j<c.p.length;j++) if (!allocSet[c.p[j]]) { ok=false; break; }
+    if (ok) trig.push(c);
+  }
+
+  // Synergy bonus (midpoint, additive, capped at 60%)
   var syn=0;
-  triggered.forEach(function(c){
-    var pts=c.bonus.replace('%','').replace('+','').split('–');
-    var pct=pts.length>1?(parseFloat(pts[0])+parseFloat(pts[1]))/2/100:parseFloat(pts[0])/100;
-    syn+=pct;
-  });
-  syn=Math.min(syn,0.60);
+  for (var i=0;i<trig.length;i++) {
+    syn += parseFloat(trig[i].b.replace('%','').replace('+',''))/100;
+  }
+  syn = Math.min(syn, 0.60);
 
-  var SH=336,FERTS=14;
-  var rXP=0,rY=0,sXP=0,sY=0;
+  // Season totals using per-slot paths
+  var SH=336, FERTS=14;
+  var rXP=0, rY=0, sXP=0, sY=0;
+  var slotIdx=0;
+  var keys=Object.keys(cnt);
+  for (var ki=0;ki<keys.length;ki++) {
+    var name=keys[ki]; var c2=cnt[name];
+    var s=gs(name); if(!s) continue;
+    // gather paths for this strain's slots
+    for (var ci2=0;ci2<c2;ci2++) {
+      var sp=slotP[slotIdx]||domP; slotIdx++;
+      var Ps=PATHS[sp];
+      var xp=expc(s,Ps,false);
+      var yld=eyd(s,Ps,title,syn);
+      var cyc=SH/s.h;
+      rXP+=xp; rY+=yld;
+      sXP+=Math.round(xp*cyc);
+      sY+=Math.round(yld*cyc);
+    }
+  }
+  if (fert && avail[0]) sXP += FERTS*Math.round(fxp(avail[0].s,PATHS[stPaths[0]||domP])*0.15);
 
-  // Calculate per slot using its station path
-  var allocWithPath=alloc.map(function(name,idx){return{name:name,path:slotPaths[idx]||path};});
-  var countsByPath={};
-  allocWithPath.forEach(function(item){
-    var key=item.name+'|'+item.path;
-    if(!countsByPath[key]) countsByPath[key]={name:item.name,path:item.path,cnt:0};
-    countsByPath[key].cnt++;
-  });
-
-  Object.keys(countsByPath).forEach(function(k){var item=countsByPath[k];
-    var s=getStrain(item.name); if(!s) return;
-    var Ps=PATHS[item.path];
-    var xp=expXP(s,Ps,false);
-    var yld=expYield(s,Ps,title,syn);
-    var cyc=SH/s.growHours;
-    rXP+=xp*item.cnt; rY+=yld*item.cnt;
-    sXP+=Math.round(xp*cyc*item.cnt);
-    sY+=Math.round(yld*cyc*item.cnt);
-  });
-  if(fert&&sorted[0]) sXP+=FERTS*Math.round(fullXP(sorted[0],P)*0.15);
-
-  var lgrow=0;
-  alloc.forEach(function(n){var s=getStrain(n);if(s&&s.growHours>lgrow)lgrow=s.growHours;});
+  var maxH=0;
+  for (var i=0;i<alloc.length;i++) { var s=gs(alloc[i]); if(s&&s.h>maxH)maxH=s.h; }
   var empty=slots-alloc.length;
   var pct=Math.min(100,Math.round(sXP/100000*100));
   var bc=pct>=100?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
 
+  // ── BUILD OUTPUT ──
   var h='';
-  h+='<div class="grid4" style="margin-bottom:16px;">';
-  h+='<div class="metric-box"><div class="metric-val metric-blue">'+sXP.toLocaleString()+'</div><div class="metric-lbl">Season XP (14 days)</div></div>';
-  h+='<div class="metric-box"><div class="metric-val metric-green">'+sY.toLocaleString()+'</div><div class="metric-lbl">Season $KUSHY</div></div>';
-  h+='<div class="metric-box"><div class="metric-val metric-amber">'+triggered.length+'</div><div class="metric-lbl">Active combos</div></div>';
-  h+='<div class="metric-box"><div class="metric-val" style="color:var(--text2)">'+lgrow+'h</div><div class="metric-lbl">Max grow time</div></div>';
+
+  // Metrics
+  h+='<div class="grid4" style="margin-bottom:14px;">';
+  h+='<div class="mbox"><div class="mval" style="color:var(--blue);">'+sXP.toLocaleString()+'</div><div class="mlbl">Season XP</div></div>';
+  h+='<div class="mbox"><div class="mval" style="color:var(--green);">'+sY.toLocaleString()+'</div><div class="mlbl">Season $KUSHY</div></div>';
+  h+='<div class="mbox"><div class="mval" style="color:var(--amber);">'+trig.length+'</div><div class="mlbl">Active combos</div></div>';
+  h+='<div class="mbox"><div class="mval" style="color:var(--text2);">'+maxH+'h</div><div class="mlbl">Max grow time</div></div>';
   h+='</div>';
 
-  h+='<div class="card" style="margin-bottom:16px;">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-  h+='<span style="font-size:13px;font-weight:600;">L20 Progress this season</span>';
-  h+='<span style="font-size:13px;font-family:\'JetBrains Mono\',monospace;color:'+bc+';">'+sXP.toLocaleString()+' / 100,000 XP ('+pct+'%)</span></div>';
-  h+='<div style="height:10px;background:var(--bg4);border-radius:5px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+bc+';border-radius:5px;"></div></div>';
-  h+=pct>=100?'<div style="font-size:12px;color:var(--green);margin-top:6px;font-weight:600;">✅ You WILL reach L20 this season!</div>':'<div style="font-size:12px;color:var(--text3);margin-top:6px;">Missing '+(100000-sXP).toLocaleString()+' XP — add more slots or switch to Aero.</div>';
+  // L20 bar
+  h+='<div class="card">';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;font-weight:600;">L20 this season</span>';
+  h+='<span style="font-size:13px;font-family:JetBrains Mono,monospace;color:'+bc+';">'+sXP.toLocaleString()+' / 100,000 ('+pct+'%)</span></div>';
+  h+='<div class="bar-wrap"><div class="bar-fill" style="width:'+pct+'%;background:'+bc+';"></div></div>';
+  h+=pct>=100?'<p style="font-size:12px;color:var(--green);margin-top:6px;font-weight:600;">✅ You WILL reach L20 this season!</p>':'<p style="font-size:12px;color:var(--text3);margin-top:6px;">Missing '+(100000-sXP).toLocaleString()+' XP</p>';
   h+='</div>';
 
-  h+='<div class="card" style="margin-bottom:16px;"><div class="section-label">Per grow cycle</div><div class="grid3" style="gap:10px;">';
-  h+='<div class="metric-box"><div class="metric-val metric-blue" style="font-size:20px;">'+rXP.toLocaleString()+'</div><div class="metric-lbl">XP this round</div></div>';
-  h+='<div class="metric-box"><div class="metric-val metric-green" style="font-size:20px;">'+rY.toLocaleString()+'</div><div class="metric-lbl">$KUSHY this round</div></div>';
-  h+='<div class="metric-box"><div class="metric-val" style="font-size:20px;color:var(--purple);">'+(slots-empty)+'/'+slots+'</div><div class="metric-lbl">Slots filled</div></div>';
+  // Per-round
+  h+='<div class="card"><div class="slabel">Per round</div><div class="grid3" style="gap:10px;">';
+  h+='<div class="mbox"><div class="mval" style="font-size:20px;color:var(--blue);">'+rXP.toLocaleString()+'</div><div class="mlbl">XP</div></div>';
+  h+='<div class="mbox"><div class="mval" style="font-size:20px;color:var(--green);">'+rY.toLocaleString()+'</div><div class="mlbl">$KUSHY</div></div>';
+  h+='<div class="mbox"><div class="mval" style="font-size:20px;color:var(--purple);">'+(slots-empty)+'/'+slots+'</div><div class="mlbl">Slots used</div></div>';
   h+='</div></div>';
 
-  // Station paths summary
-  var stationSummary=stationPaths.slice(0,numStations).map(function(p,i){
-    var stSlots=(i===numStations-1)?(slots-(numStations-1)*5):5;
-    return 'S'+(i+1)+': '+p+' ('+stSlots+' slots)';
-  }).join(' · ');
-  h+='<div class="notice notice-info" style="margin-bottom:10px;">🏠 '+stationSummary+'</div>';
+  // Station summary
+  var stSum='';
+  for (var i=0;i<nSt;i++) stSum+='S'+(i+1)+':'+(stPaths[i]||'aero')+(i<nSt-1?' · ':'');
+  h+='<div class="notice n-blue">🏠 '+stSum+'</div>';
 
-  if(goal==='safe'&&stationPaths.some(function(p){return p==='aero';})) h+='<div class="notice notice-red">⚠️ "No Risk" selected but some stations use Aero. Switch to Soil.</div>';
-  if(empty>0) h+='<div class="notice notice-warn">⚠️ '+empty+' slot(s) empty — not enough seeds in inventory.</div>';
-  if(stationPaths.some(function(p){return p==='aero';})) h+='<div class="notice notice-warn">⚡ Aero stations: 35% seed destroyed → 0 yield, but you still get XP on fail (fullXP × 0.35).</div>';
-  if(stationPaths.some(function(p){return p==='hydro';})) h+='<div class="notice notice-warn">⚡ Hydro stations: 15% chance half yield. XP always full.</div>';
-  if(triggered.length>0) h+='<div class="notice notice-green">✨ '+triggered.length+' combo(s) active — +'+Math.round(syn*100)+'% yield bonus!</div>';
-  if(fert&&sorted[0]) h+='<div class="notice notice-info">🧪 Fertilizer → '+sorted[0].name+': '+Math.round(fullXP(sorted[0],P)*1.15)+' XP (vs '+Math.round(fullXP(sorted[0],P))+' without). +'+Math.round(FERTS*fullXP(sorted[0],P)*0.15).toLocaleString()+' XP this season.</div>';
-  h+='<div class="notice notice-info" style="margin-bottom:16px;">⏱ Harvest within 2h of maturity for 100% yield. After 8h → 40% floor.</div>';
+  // Warnings
+  if (empty>0) h+='<div class="notice n-warn">⚠️ '+empty+' slot(s) empty — not enough seeds.</div>';
+  var hasAero=false; for(var i=0;i<stPaths.length&&i<nSt;i++) if(stPaths[i]==='aero')hasAero=true;
+  var hasHydro=false; for(var i=0;i<stPaths.length&&i<nSt;i++) if(stPaths[i]==='hydro')hasHydro=true;
+  if (hasAero) h+='<div class="notice n-warn">⚡ Aero fail: seed destroyed, 0 yield — but ~'+Math.round(fxp(avail[0].s,PATHS.aero)*0.35)+' XP still granted.</div>';
+  if (hasHydro) h+='<div class="notice n-warn">⚡ Hydro: 15% half yield. XP always full.</div>';
+  if (trig.length>0) h+='<div class="notice n-green">✨ '+trig.length+' combo(s) active → +'+Math.round(syn*100)+'% yield!</div>';
+  if (fert&&avail[0]) h+='<div class="notice n-blue">🧪 Apply fertilizer to '+avail[0].s.n+' → +15% XP this harvest.</div>';
+  h+='<div class="notice n-blue">⏱ Harvest within 2h of maturity for 100% yield. After 8h → 40% floor.</div>';
 
-  h+='<div class="card" style="margin-bottom:16px;">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">';
-  h+='<div class="section-label" style="margin-bottom:0;">Planting Plan ('+alloc.length+'/'+slots+' slots)</div>';
-  if(goal==='xp') h+='<span style="font-size:11px;color:var(--blue);font-weight:600;">Sorted by XP/hour ↓</span>';
+  // Planting plan
+  h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+  h+='<div class="slabel" style="margin:0;">Planting Plan ('+alloc.length+'/'+slots+')</div>';
+  if(goal==='xp') h+='<span style="font-size:11px;color:var(--blue);font-weight:600;">sorted by XP/h ↓</span>';
   h+='</div>';
 
-  var rgroups={};
-  Object.keys(counts).forEach(function(name){
-    var cnt=counts[name]; var s=getStrain(name); if(!s) return;
-    if(!rgroups[s.rarity]) rgroups[s.rarity]=[];
-    rgroups[s.rarity].push({name:name,cnt:cnt,s:s});
-  });
-  RARITY_ORDER.forEach(function(r){
-    if(!rgroups[r]) return;
-    rgroups[r].forEach(function(item){
-      var name=item.name,cnt=item.cnt,s=item.s;
-      var pp=Math.round(cnt/slots*100);
-      var yld=expYield(s,P,title,syn);
-      var xph=(expXP(s,P,false)/s.growHours).toFixed(1);
-      var xpc=expXP(s,P,false);
-      var cyc=(SH/s.growHours).toFixed(1);
-      var isCombo=triggered.some(function(c){return c.plants.indexOf(name)>=0;});
-      var isFert=fert&&sorted[0]&&name===sorted[0].name;
-      h+='<div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">';
-      h+='<div><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">';
+  slotIdx=0;
+  for (var ri=0;ri<RORD.length;ri++) {
+    var r=RORD[ri];
+    var rkeys=[];
+    for(var k in cnt) { var s2=gs(k); if(s2&&s2.r===r) rkeys.push(k); }
+    for (var ki2=0;ki2<rkeys.length;ki2++) {
+      var name=rkeys[ki2]; var c3=cnt[name]; var s=gs(name); if(!s) continue;
+      var sp=slotP[slotIdx]||domP;
+      var Ps=PATHS[sp];
+      var xph=(expc(s,Ps,false)/s.h).toFixed(1);
+      var xpc2=expc(s,Ps,false);
+      var yld2=eyd(s,Ps,title,syn);
+      var cyc2=(SH/s.h).toFixed(1);
+      var pp=Math.round(c3/slots*100);
+      var isC=false; for(var ti=0;ti<trig.length;ti++){for(var pi2=0;pi2<trig[ti].p.length;pi2++) if(trig[ti].p[pi2]===name){isC=true;break;}if(isC)break;}
+      var isF=fert&&avail[0]&&name===avail[0].s.n;
+      slotIdx+=c3;
+
+      h+='<div style="display:grid;grid-template-columns:1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">';
+      h+='<div>';
+      h+='<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;">';
       h+='<span style="font-size:14px;font-weight:600;">'+name+'</span>';
-      h+='<span class="rarity-pill r-'+r+'">'+cnt+'×</span>';
-      if(isCombo) h+='<span style="font-size:11px;color:var(--green);">✨ Combo</span>';
-      if(isFert)  h+='<span style="font-size:11px;color:var(--blue);">🧪 +25% yield +15% XP</span>';
-      h+='</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:5px;">';
-      h+='<span class="stat-chip">'+xph+' XP/h</span>';
-      h+='<span class="stat-chip">'+xpc+' XP/cycle</span>';
-      if(path==='aero') h+='<span class="stat-chip">'+Math.round(fullXP(s,P)*0.35)+' XP on fail</span>';
-      h+='<span class="stat-chip">'+cyc+' cycles/season</span>';
-      h+='<span class="stat-chip">'+s.growHours+'h grow</span>';
-      h+='</div><div class="alloc-bar-wrap"><div class="alloc-bar" style="width:'+pp+'%;background:'+RARITY_COLORS[r]+';"></div></div>';
-      h+='</div><div style="text-align:right;">';
-      h+='<div style="font-size:15px;font-weight:600;color:var(--blue);">'+(xpc*cnt).toLocaleString()+' XP</div>';
-      h+='<div style="font-size:11px;color:var(--text3);">per round</div>';
-      h+='<div style="font-size:13px;font-weight:600;color:var(--green);">'+(yld*cnt).toLocaleString()+' $K</div>';
+      h+='<span class="pill r-'+r+'">'+c3+'×</span>';
+      h+='<span class="chip">'+sp+'</span>';
+      if(isC) h+='<span style="font-size:11px;color:var(--green);">✨combo</span>';
+      if(isF) h+='<span style="font-size:11px;color:var(--blue);">🧪fert</span>';
+      h+='</div>';
+      h+='<div style="display:flex;gap:5px;flex-wrap:wrap;">';
+      h+='<span class="chip">'+xph+' XP/h</span>';
+      h+='<span class="chip">'+xpc2+' XP/cycle</span>';
+      h+='<span class="chip">'+cyc2+' cycles</span>';
+      h+='<span class="chip">'+s.h+'h</span>';
+      if(sp==='aero') h+='<span class="chip">'+Math.round(fxp(s,PATHS.aero)*0.35)+' XP fail</span>';
+      h+='</div>';
+      h+='<div class="bar-wrap" style="margin-top:5px;"><div class="bar-fill" style="width:'+pp+'%;background:'+RCOL[r]+';"></div></div>';
+      h+='</div>';
+      h+='<div style="text-align:right;">';
+      h+='<div style="font-size:15px;font-weight:700;color:var(--blue);">'+(xpc2*c3).toLocaleString()+'</div>';
+      h+='<div style="font-size:10px;color:var(--text3);">XP/round</div>';
+      h+='<div style="font-size:13px;font-weight:600;color:var(--green);margin-top:2px;">'+(yld2*c3).toLocaleString()+' $K</div>';
       h+='</div></div>';
-    });
-  });
+    }
+  }
   h+='</div>';
 
-  if(triggered.length>0){
-    h+='<div class="card" style="margin-bottom:16px;"><div class="section-label">Active Combos</div>';
-    triggered.forEach(function(c){
-      h+='<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">';
-      h+='<div><div style="font-size:14px;font-weight:600;margin-bottom:4px;">'+c.emoji+' '+c.name+'</div>';
-      h+='<div style="display:flex;gap:4px;flex-wrap:wrap;">';
-      c.plants.forEach(function(p){var s=getStrain(p);h+='<span class="rarity-pill r-'+(s?s.rarity:'common')+'">'+p+'</span>';});
-      h+='</div></div><span style="font-size:14px;font-weight:700;color:var(--green);">'+c.bonus+'</span></div>';
-    });
+  // Active combos
+  if (trig.length>0) {
+    h+='<div class="card"><div class="slabel">Active Combos</div>';
+    for (var i=0;i<trig.length;i++) {
+      var c=trig[i];
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">';
+      h+='<div><div style="font-size:13px;font-weight:600;margin-bottom:3px;">'+c.e+' '+c.name+'</div>';
+      h+='<div style="display:flex;gap:3px;flex-wrap:wrap;">';
+      for(var pi3=0;pi3<c.p.length;pi3++){var s3=gs(c.p[pi3]);h+='<span class="pill r-'+(s3?s3.r:'common')+'">'+c.p[pi3]+'</span>';}
+      h+='</div></div><span style="font-size:14px;font-weight:700;color:var(--green);">'+c.b+'</span></div>';
+    }
     h+='</div>';
   }
 
-  if(goal==='xp'){
-    h+='<div class="card" style="border-color:var(--blue-border);"><div class="section-label" style="color:var(--blue);">🏆 Tips to reach #1</div>';
+  // XP tips
+  if (goal==='xp') {
+    h+='<div class="card" style="border-color:var(--bbd);">';
+    h+='<div class="slabel" style="color:var(--blue);">🏆 Tips for Rank #1</div>';
     h+='<div style="font-size:13px;color:var(--text2);line-height:1.9;">';
-    h+='<div>⭐ <strong style="color:var(--text)">Priority:</strong> Legendary Aero (40.6 XP/h) → Epic Aero (32.7) → Uncommon Aero (28.6)</div>';
-    h+='<div>🧪 <strong style="color:var(--text)">Fertilizer:</strong> Always on Legendary — +'+Math.round(FERTS*350*2.0*PREMIUM_XP*0.15).toLocaleString()+' XP over the season from 14 daily uses</div>';
-    h+='<div>🔴 <strong style="color:var(--text)">Aero fail:</strong> Seed destroyed but you still get ~367 XP (= fullXP × 35%). Still worth it.</div>';
-    h+='<div>⏱ <strong style="color:var(--text)">Harvest:</strong> Never let plants sit — every missed Legendary Aero cycle = 1,050 XP lost</div>';
-    h+='<div>🌿 <strong style="color:var(--text)">After L20:</strong> Prestige Runs → Gas+ pays 22,000 $KASH for 70k XP</div>';
-    h+='<div>👥 <strong style="color:var(--text)">Club:</strong> Full 100-person club = ×1.5 $KASH multiplier on daily pool</div>';
+    h+='<div>⭐ <b style="color:var(--text)">Priority:</b> Legendary Aero (40.6 XP/h) → Epic Aero (32.7) → Uncommon Aero (28.6)</div>';
+    h+='<div>🧪 <b style="color:var(--text)">Fertilizer:</b> Always on Legendary — +'+Math.round(FERTS*350*2.0*PREM*0.15).toLocaleString()+' XP over season</div>';
+    h+='<div>🔴 <b style="color:var(--text)">Aero fail:</b> Seed destroyed but ~367 XP still granted. Worth it.</div>';
+    h+='<div>⏱ <b style="color:var(--text)">Timing:</b> Every missed Legendary Aero cycle = 1,050 XP lost</div>';
+    h+='<div>🌿 <b style="color:var(--text)">After L20:</b> Prestige → Gas+ pays 22,000 $KASH per 70k XP run</div>';
+    h+='<div>👥 <b style="color:var(--text)">Club:</b> 100 active members = ×1.5 $KASH multiplier</div>';
     h+='</div></div>';
   }
 
-  document.getElementById('results-panel').innerHTML=h;
+  document.getElementById('results').innerHTML = h;
 }
 
-// ── GROW LOG ──
-function loadGrowLog(){try{var d=localStorage.getItem('kushy_gl');if(d)stations=JSON.parse(d);}catch(e){}}
-function saveGrowLog(){try{localStorage.setItem('kushy_gl',JSON.stringify(stations));}catch(e){}}
-function addStation(){
-  stations.push({id:Date.now(),name:'Station '+(stations.length+1),
-    slots:[0,1,2,3,4].map(function(){return{strain:'',path:'aero',matureAt:null};})});
-  saveGrowLog();renderGL();
+// ═══════════════════════════════════════════════
+// COMBOS
+// ═══════════════════════════════════════════════
+function comboStatus(c) {
+  var have=0;
+  for (var i=0;i<c.p.length;i++) if (inv[c.p[i]]||0) have++;
+  return have===c.p.length ? 'have' : have>0 ? 'some' : 'none';
 }
-function removeStation(id){
+
+function renderCombos() {
+  saveInv();
+  var el = document.getElementById('combo-grid');
+  if (!el) return;
+  var h='';
+  for (var i=0;i<COMBOS.length;i++) {
+    var c=COMBOS[i]; var st=comboStatus(c);
+    var slbl=st==='have'?'✅ Available':st==='some'?'🟡 Almost there':'🔒 Not possible';
+    var scol=st==='have'?'background:var(--gbg);color:var(--green);':st==='some'?'background:var(--abg);color:var(--amber);':'background:rgba(144,152,168,.1);color:var(--text3);';
+    h+='<div class="combo-card '+st+'" data-st="'+st+'">';
+    h+='<div style="font-size:13px;font-weight:700;margin-bottom:7px;">'+c.e+' '+c.name+'</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
+    for(var j=0;j<c.p.length;j++){
+      var s=gs(c.p[j]); var hv=(inv[c.p[j]]||0)>0;
+      h+='<span class="pill r-'+(s?s.r:'common')+'" style="'+(hv?'':'opacity:.4;')+'">'+(hv?'✓ ':'')+c.p[j]+'</span>';
+    }
+    h+='</div>';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;">';
+    h+='<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;'+scol+'">'+slbl+'</span>';
+    h+='<span style="font-size:12px;color:var(--text3);font-weight:700;">'+c.b+'</span>';
+    h+='</div></div>';
+  }
+  el.innerHTML = h;
+}
+
+function filterC(type, btn) {
+  var tabs=document.querySelectorAll('.itab');
+  for(var i=0;i<tabs.length;i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var cards=document.querySelectorAll('.combo-card');
+  for(var i=0;i<cards.length;i++) {
+    cards[i].style.display = (type==='all'||cards[i].dataset.st===type)?'':'none';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// GROW LOG
+// ═══════════════════════════════════════════════
+function loadGL() { try{ var d=localStorage.getItem('kg'); if(d) stations=JSON.parse(d); }catch(e){} }
+function saveGL() { try{ localStorage.setItem('kg',JSON.stringify(stations)); }catch(e){} }
+
+function addStation() {
+  var sl=[];
+  for(var i=0;i<5;i++) sl.push({n:'',p:'aero',mat:null});
+  stations.push({id:Date.now(), name:'Station '+(stations.length+1), sl:sl});
+  saveGL(); renderGL();
+}
+
+function rmStation(id) {
   if(!confirm('Remove station?')) return;
-  stations=stations.filter(function(s){return s.id!==id;});
-  saveGrowLog();renderGL();
+  var ns=[];
+  for(var i=0;i<stations.length;i++) if(stations[i].id!==id) ns.push(stations[i]);
+  stations=ns; saveGL(); renderGL();
 }
-function glSetStrain(sid,i,val){
-  var st=stations.find(function(s){return s.id===sid;}); if(!st) return;
-  st.slots[i].strain=val;
-  var s=getStrain(val);
-  if(s&&!st.slots[i].matureAt) st.slots[i].matureAt=Date.now()+s.growHours*3600000;
-  saveGrowLog();renderGL();
+
+function glSN(sid,i,v) {
+  var st=null; for(var k=0;k<stations.length;k++) if(stations[k].id===sid){st=stations[k];break;}
+  if(!st) return;
+  st.sl[i].n=v;
+  var s=gs(v);
+  if(s&&!st.sl[i].mat) st.sl[i].mat=Date.now()+s.h*3600000;
+  saveGL(); renderGL();
 }
-function glSetPath(sid,i,val){var st=stations.find(function(s){return s.id===sid;});if(st){st.slots[i].path=val;saveGrowLog();}}
-function glSetTime(sid,i,h,m){
-  var st=stations.find(function(s){return s.id===sid;}); if(!st) return;
-  var tot=(parseFloat(h)||0)+((parseFloat(m)||0)/60);
-  st.slots[i].matureAt=Date.now()+tot*3600000;
-  saveGrowLog();renderGL();
+function glSP(sid,i,v) {
+  var st=null; for(var k=0;k<stations.length;k++) if(stations[k].id===sid){st=stations[k];break;}
+  if(st){st.sl[i].p=v;saveGL();}
 }
-function glClear(sid,i){
-  var st=stations.find(function(s){return s.id===sid;}); if(!st) return;
-  st.slots[i]={strain:'',path:'aero',matureAt:null};
-  saveGrowLog();renderGL();
+function glST(sid,i,h2,m2) {
+  var st=null; for(var k=0;k<stations.length;k++) if(stations[k].id===sid){st=stations[k];break;}
+  if(!st) return;
+  var t=(parseFloat(h2)||0)+((parseFloat(m2)||0)/60);
+  st.sl[i].mat=Date.now()+t*3600000;
+  saveGL(); renderGL();
 }
-function glAdj(sid,i,dh,dm){
-  var hEl=document.getElementById('glH-'+sid+'-'+i);
-  var mEl=document.getElementById('glM-'+sid+'-'+i);
-  if(!hEl||!mEl) return;
-  var h=parseInt(hEl.value)||0,m=parseInt(mEl.value)||0;
-  m+=dm;h+=dh;
-  if(m>=60){m-=60;h++;}if(m<0){m+=60;h=Math.max(0,h-1);}if(h<0)h=0;
-  hEl.value=h;mEl.value=m;
-  glSetTime(sid,i,h,m);
+function glCL(sid,i) {
+  var st=null; for(var k=0;k<stations.length;k++) if(stations[k].id===sid){st=stations[k];break;}
+  if(!st) return;
+  st.sl[i]={n:'',p:'aero',mat:null};
+  saveGL(); renderGL();
 }
-function glRem(sl){return sl.matureAt?sl.matureAt-Date.now():null;}
-function glFmt(ms){
+function glADJ(sid,i,dh,dm) {
+  var he=document.getElementById('gh-'+sid+'-'+i);
+  var me=document.getElementById('gm-'+sid+'-'+i);
+  if(!he||!me) return;
+  var h2=parseInt(he.value)||0, m2=parseInt(me.value)||0;
+  m2+=dm; h2+=dh;
+  if(m2>=60){m2-=60;h2++;}if(m2<0){m2+=60;h2=Math.max(0,h2-1);}if(h2<0)h2=0;
+  he.value=h2;me.value=m2;
+  glST(sid,i,h2,m2);
+}
+
+function glRem(sl) { return sl.mat?sl.mat-Date.now():null; }
+function glFmt(ms) {
   if(ms===null) return '—';
-  var neg=ms<0,abs=Math.abs(ms);
-  var h=Math.floor(abs/3600000),m=Math.floor((abs%3600000)/60000),s=Math.floor((abs%60000)/1000);
-  return(neg?'-':'')+(h>0?h+'h '+m+'m':m>0?m+'m '+s+'s':s+'s');
+  var neg=ms<0,a=Math.abs(ms);
+  var h=Math.floor(a/3600000),m=Math.floor((a%3600000)/60000),s=Math.floor((a%60000)/1000);
+  return (neg?'-':'')+(h>0?h+'h '+m+'m':m>0?m+'m '+s+'s':s+'s');
 }
-function glStatus(sl){
-  if(!sl.strain) return 'empty';
+function glStat(sl) {
+  if(!sl.n) return 'empty';
   var ms=glRem(sl); if(ms===null) return 'growing';
   if(ms>7200000) return 'growing';
   if(ms>0) return 'soon';
   if(ms>-7200000) return 'ready';
   return 'late';
 }
-function glYield(sl){
-  var s=getStrain(sl.strain); if(!s) return 0;
-  var P=PATHS[sl.path]||PATHS.soil;
-  return Math.round(s.baseYield*P.yieldMult);
+function glYld(sl) {
+  var s=gs(sl.n); if(!s) return 0;
+  var P=PATHS[sl.p]||PATHS.soil;
+  return Math.round(s.y*P.ym);
 }
-function renderGL(){
-  var empty=document.getElementById('gl-empty');
-  var cont=document.getElementById('gl-stations');
-  if(!empty||!cont) return;
-  empty.style.display=stations.length?'none':'block';
-  if(!stations.length){cont.innerHTML='';return;}
-  var opts='<option value="">— empty —</option>'+STRAINS.map(function(s){return'<option value="'+s.name+'">'+s.name+' ('+s.rarity+')</option>';}).join('');
-  var html='';
-  stations.forEach(function(st){
-    var ready=st.slots.filter(function(sl){return glStatus(sl)==='ready';}).length;
-    var late=st.slots.filter(function(sl){return glStatus(sl)==='late';}).length;
-    var totalY=st.slots.reduce(function(a,sl){return a+glYield(sl);},0);
-    var badge=late?'<span style="font-size:11px;background:var(--red-bg);color:var(--red);padding:3px 10px;border-radius:6px;font-weight:700;">⚠️ '+late+' overdue</span>':ready?'<span style="font-size:11px;background:var(--green-bg);color:var(--green);padding:3px 10px;border-radius:6px;font-weight:700;">✅ '+ready+' ready</span>':'';
-    html+='<div class="station-card">';
-    html+='<div class="station-header"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:15px;font-weight:700;">🏠 '+st.name+'</span>'+badge+'</div>';
-    html+='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;color:var(--text2);font-family:\'JetBrains Mono\',monospace;">'+totalY.toLocaleString()+' $KUSHY</span><button class="btn btn-danger btn-sm" onclick="removeStation('+st.id+')">Remove</button></div></div>';
-    st.slots.forEach(function(sl,i){
-      var s=getStrain(sl.strain);
-      var ms=glRem(sl);
-      var status=glStatus(sl);
-      var totalMs=s?s.growHours*3600000:1;
-      var elapsed=ms!==null?totalMs-ms:0;
-      var prog=ms!==null?Math.min(100,Math.max(0,elapsed/totalMs*100)):0;
-      var barC={growing:'var(--blue)',soon:'var(--amber)',ready:'var(--green)',late:'var(--red)',empty:'var(--text3)'}[status];
-      var rowC={soon:'st-soon',ready:'st-ready',late:'st-late',growing:'',empty:''}[status];
-      var icC=s?'ic-'+s.rarity:'ic-empty';
-      var emoji=s?GL_EMOJIS[s.rarity]:'＋';
-      var yld=glYield(sl);
+
+function renderGL() {
+  var ee=document.getElementById('gl-empty');
+  var gb=document.getElementById('gl-body');
+  if(!ee||!gb) return;
+  ee.style.display=stations.length?'none':'block';
+  if(!stations.length){gb.innerHTML='';return;}
+
+  var opts='<option value="">— empty —</option>';
+  for(var i=0;i<S.length;i++) opts+='<option value="'+S[i].n+'">'+S[i].n+' ('+S[i].r+')</option>';
+
+  var h='';
+  for(var si=0;si<stations.length;si++){
+    var st=stations[si];
+    var rdy=0,late2=0,totY=0;
+    for(var i=0;i<st.sl.length;i++){var ss=glStat(st.sl[i]);if(ss==='ready')rdy++;if(ss==='late')late2++;totY+=glYld(st.sl[i]);}
+    var badge=late2?'<span style="font-size:11px;background:var(--rbg);color:var(--red);padding:2px 9px;border-radius:6px;font-weight:700;">⚠️ '+late2+' overdue</span>':rdy?'<span style="font-size:11px;background:var(--gbg);color:var(--green);padding:2px 9px;border-radius:6px;font-weight:700;">✅ '+rdy+' ready</span>':'';
+    h+='<div class="station">';
+    h+='<div class="shead"><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:14px;font-weight:700;">🏠 '+st.name+'</span>'+badge+'</div>';
+    h+='<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--text2);font-family:JetBrains Mono,monospace;">'+totY.toLocaleString()+' $K</span><button class="btn btn-red btn-sm" onclick="rmStation('+st.id+')">Remove</button></div></div>';
+
+    for(var i=0;i<st.sl.length;i++){
+      var sl=st.sl[i]; var s=gs(sl.n);
+      var ms=glRem(sl); var stat=glStat(sl);
+      var totMs=s?s.h*3600000:1;
+      var prog=ms!==null?Math.min(100,Math.max(0,(totMs-ms)/totMs*100)):0;
+      var bc2={growing:'var(--blue)',soon:'var(--amber)',ready:'var(--green)',late:'var(--red)',empty:'var(--text3)'}[stat];
+      var rc2={soon:'soon',ready:'ready',late:'late',growing:'',empty:''}[stat];
+      var ic='ic-'+(s?{common:'c',uncommon:'u',rare:'r',epic:'e',legendary:'l'}[s.r]:'x');
+      var em=s?GLEM[s.r]:'＋';
+      var yld2=glYld(sl);
       var hv=ms&&ms>0?Math.floor(ms/3600000):0;
       var mv=ms&&ms>0?Math.floor((ms%3600000)/60000):0;
-      var stTxt={growing:'🌱 Growing',soon:'⚡ Almost ready',ready:'✅ Harvest now!',late:'🔴 Overdue!',empty:''}[status];
-      var selOpts=opts.replace('value="'+sl.strain+'"','value="'+sl.strain+'" selected');
-      html+='<div class="plant-row-gl '+rowC+'" id="glr-'+st.id+'-'+i+'">';
-      html+='<div class="plant-icon-gl '+icC+'">'+emoji+'</div>';
-      html+='<div style="min-width:0;">';
-      html+='<select style="background:transparent;border:none;color:'+(s?'var(--text)':'var(--text2)')+';font-size:14px;font-weight:600;padding:0;width:100%;outline:none;font-family:inherit;cursor:pointer;" onchange="glSetStrain('+st.id+','+i+',this.value)">'+selOpts+'</select>';
-      html+='<div style="display:flex;align-items:center;gap:8px;margin-top:2px;">';
-      html+='<select style="background:transparent;border:none;font-size:11px;color:var(--text3);padding:0;outline:none;font-family:inherit;cursor:pointer;" onchange="glSetPath('+st.id+','+i+',this.value)">';
-      ['soil','hydro','aero'].forEach(function(p){html+='<option value="'+p+'"'+(sl.path===p?' selected':'')+'>'+p+'</option>';});
-      html+='</select>';
-      if(sl.strain) html+='<span style="font-size:11px;color:'+barC+';">'+stTxt+'</span>';
-      html+='</div></div>';
-      html+='<div>';
-      if(sl.strain){
-        html+='<div class="prog-bar-bg"><div class="prog-bar-fill" id="glb-'+st.id+'-'+i+'" style="width:'+prog+'%;background:'+barC+';"></div></div>';
-        html+='<div style="display:flex;align-items:center;gap:4px;margin-top:5px;">';
-        html+='<span style="font-size:12px;color:var(--text2);font-family:\'JetBrains Mono\',monospace;min-width:72px;" id="glt-'+st.id+'-'+i+'">'+glFmt(ms)+'</span>';
-        html+='<div style="display:flex;flex-direction:column;align-items:center;">';
-        html+='<button onclick="glAdj('+st.id+','+i+',1,0)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:4px;color:var(--text2);width:26px;height:17px;cursor:pointer;font-size:10px;line-height:1;">▲</button>';
-        html+='<input type="number" min="0" max="99" id="glH-'+st.id+'-'+i+'" value="'+hv+'" style="width:32px;font-size:12px;font-weight:600;padding:2px;border-radius:5px;text-align:center;" onchange="glSetTime('+st.id+','+i+',this.value,document.getElementById(\'glM-'+st.id+'-'+i+'\').value)">';
-        html+='<button onclick="glAdj('+st.id+','+i+',-1,0)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:4px;color:var(--text2);width:26px;height:17px;cursor:pointer;font-size:10px;line-height:1;">▼</button>';
-        html+='</div><span style="font-size:11px;color:var(--text3);">h</span>';
-        html+='<div style="display:flex;flex-direction:column;align-items:center;">';
-        html+='<button onclick="glAdj('+st.id+','+i+',0,1)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:4px;color:var(--text2);width:26px;height:17px;cursor:pointer;font-size:10px;line-height:1;">▲</button>';
-        html+='<input type="number" min="0" max="59" id="glM-'+st.id+'-'+i+'" value="'+mv+'" style="width:32px;font-size:12px;font-weight:600;padding:2px;border-radius:5px;text-align:center;" onchange="glSetTime('+st.id+','+i+',document.getElementById(\'glH-'+st.id+'-'+i+'\').value,this.value)">';
-        html+='<button onclick="glAdj('+st.id+','+i+',0,-1)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:4px;color:var(--text2);width:26px;height:17px;cursor:pointer;font-size:10px;line-height:1;">▼</button>';
-        html+='</div><span style="font-size:11px;color:var(--text3);">m</span>';
-        html+='</div>';
-      } else {html+='<div style="font-size:12px;color:var(--text3);">Select strain</div>';}
-      html+='</div>';
-      html+='<div style="text-align:right;">';
-      if(sl.strain){html+='<div style="font-size:15px;font-weight:700;color:var(--green);">'+yld.toLocaleString()+'</div><div style="font-size:10px;color:var(--text3);">$KUSHY</div>';}
-      html+='</div>';
-      html+='<button class="btn btn-ghost btn-sm" style="padding:4px 8px;" onclick="glClear('+st.id+','+i+')">✕</button>';
-      html+='</div>';
-    });
-    html+='</div>';
-  });
-  cont.innerHTML=html;
+      var stxt={growing:'🌱 Growing',soon:'⚡ Almost ready',ready:'✅ Harvest!',late:'🔴 Overdue!',empty:''}[stat];
+      var selO=opts.replace('value="'+sl.n+'"','value="'+sl.n+'" selected');
+
+      h+='<div class="slot-row '+rc2+'" id="sr-'+st.id+'-'+i+'">';
+      h+='<div class="sicon '+ic+'">'+em+'</div>';
+      h+='<div style="min-width:0;">';
+      h+='<select style="background:transparent;border:none;color:'+(s?'var(--text)':'var(--text2)')+';font-size:14px;font-weight:600;padding:0;width:100%;outline:none;font-family:inherit;cursor:pointer;" onchange="glSN('+st.id+','+i+',this.value)">'+selO+'</select>';
+      h+='<div style="display:flex;gap:6px;margin-top:2px;align-items:center;">';
+      h+='<select style="background:transparent;border:none;font-size:11px;color:var(--text3);padding:0;outline:none;font-family:inherit;cursor:pointer;" onchange="glSP('+st.id+','+i+',this.value)">';
+      var ps=['soil','hydro','aero'];
+      for(var pi=0;pi<ps.length;pi++) h+='<option value="'+ps[pi]+'"'+(sl.p===ps[pi]?' selected':'')+'>'+ps[pi]+'</option>';
+      h+='</select>';
+      if(sl.n) h+='<span style="font-size:11px;color:'+bc2+';">'+stxt+'</span>';
+      h+='</div></div>';
+
+      h+='<div>';
+      if(sl.n){
+        h+='<div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:5px;"><div id="gb-'+st.id+'-'+i+'" style="height:100%;border-radius:2px;width:'+prog+'%;background:'+bc2+';"></div></div>';
+        h+='<div style="display:flex;align-items:center;gap:4px;">';
+        h+='<span id="gt-'+st.id+'-'+i+'" style="font-size:12px;color:var(--text2);font-family:JetBrains Mono,monospace;min-width:68px;">'+glFmt(ms)+'</span>';
+        h+='<div style="display:flex;flex-direction:column;align-items:center;">';
+        h+='<button onclick="glADJ('+st.id+','+i+',1,0)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:3px;color:var(--text2);width:24px;height:15px;cursor:pointer;font-size:9px;line-height:1;">▲</button>';
+        h+='<input type="number" min="0" max="99" id="gh-'+st.id+'-'+i+'" value="'+hv+'" style="width:30px;font-size:11px;font-weight:600;padding:1px;border-radius:4px;text-align:center;" onchange="glST('+st.id+','+i+',this.value,document.getElementById('gm-'+st.id+'-'+i+'').value)">';
+        h+='<button onclick="glADJ('+st.id+','+i+',-1,0)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:3px;color:var(--text2);width:24px;height:15px;cursor:pointer;font-size:9px;line-height:1;">▼</button>';
+        h+='</div><span style="font-size:10px;color:var(--text3);">h</span>';
+        h+='<div style="display:flex;flex-direction:column;align-items:center;">';
+        h+='<button onclick="glADJ('+st.id+','+i+',0,1)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:3px;color:var(--text2);width:24px;height:15px;cursor:pointer;font-size:9px;line-height:1;">▲</button>';
+        h+='<input type="number" min="0" max="59" id="gm-'+st.id+'-'+i+'" value="'+mv+'" style="width:30px;font-size:11px;font-weight:600;padding:1px;border-radius:4px;text-align:center;" onchange="glST('+st.id+','+i+',document.getElementById('gh-'+st.id+'-'+i+'').value,this.value)">';
+        h+='<button onclick="glADJ('+st.id+','+i+',0,-1)" style="background:var(--bg4);border:1px solid var(--border2);border-radius:3px;color:var(--text2);width:24px;height:15px;cursor:pointer;font-size:9px;line-height:1;">▼</button>';
+        h+='</div><span style="font-size:10px;color:var(--text3);">m</span>';
+        h+='</div>';
+      } else { h+='<div style="font-size:12px;color:var(--text3);">Select strain</div>'; }
+      h+='</div>';
+
+      h+='<div style="text-align:right;">';
+      if(sl.n) h+='<div style="font-size:14px;font-weight:700;color:var(--green);">'+yld2.toLocaleString()+'</div><div style="font-size:10px;color:var(--text3);">$KUSHY</div>';
+      h+='</div>';
+      h+='<button class="btn btn-ghost btn-sm" style="padding:3px 7px;" onclick="glCL('+st.id+','+i+')">✕</button>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  gb.innerHTML=h;
 }
 
 setInterval(function(){
   if(!document.getElementById('page-growlog').classList.contains('active')) return;
-  stations.forEach(function(st){
-    st.slots.forEach(function(sl,i){
-      if(!sl.strain||!sl.matureAt) return;
-      var ms=glRem(sl);
-      var s=getStrain(sl.strain);
-      var totalMs=s?s.growHours*3600000:1;
-      var prog=Math.min(100,Math.max(0,(totalMs-ms)/totalMs*100));
-      var status=glStatus(sl);
-      var barC={growing:'var(--blue)',soon:'var(--amber)',ready:'var(--green)',late:'var(--red)'}[status]||'var(--blue)';
-      var rowC={soon:'st-soon',ready:'st-ready',late:'st-late',growing:'',empty:''}[status];
-      var tEl=document.getElementById('glt-'+st.id+'-'+i);
-      var bEl=document.getElementById('glb-'+st.id+'-'+i);
-      var rEl=document.getElementById('glr-'+st.id+'-'+i);
-      if(tEl) tEl.textContent=glFmt(ms);
-      if(bEl){bEl.style.width=prog+'%';bEl.style.background=barC;}
-      if(rEl) rEl.className='plant-row-gl '+rowC;
-    });
-  });
+  for(var si=0;si<stations.length;si++){
+    var st=stations[si];
+    for(var i=0;i<st.sl.length;i++){
+      var sl=st.sl[i]; if(!sl.n||!sl.mat) continue;
+      var ms=glRem(sl); var s=gs(sl.n);
+      var totMs=s?s.h*3600000:1;
+      var prog=Math.min(100,Math.max(0,(totMs-ms)/totMs*100));
+      var stat=glStat(sl);
+      var bc={growing:'var(--blue)',soon:'var(--amber)',ready:'var(--green)',late:'var(--red)'}[stat]||'var(--blue)';
+      var rc={soon:'soon',ready:'ready',late:'late',growing:'',empty:''}[stat];
+      var te=document.getElementById('gt-'+st.id+'-'+i);
+      var be=document.getElementById('gb-'+st.id+'-'+i);
+      var re=document.getElementById('sr-'+st.id+'-'+i);
+      if(te) te.textContent=glFmt(ms);
+      if(be){be.style.width=prog+'%';be.style.background=bc;}
+      if(re) re.className='slot-row '+rc;
+    }
+  }
 },1000);
 
-
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+window.onload = function() {
+  loadInv();
+  buildInv();
+  renderCombos();
+  // default growroom = attic
+  var attic = document.querySelector('.gr-btn[data-slots="8"]');
+  if (attic) pickRoom(attic);
+  else buildStations();
+  loadGL();
+  renderGL();
+  // add id to strategy tab button for saveAndGoStrategy
+  var tabs=document.querySelectorAll('.nav-tab');
+  if(tabs[1]) tabs[1].id='tab-strategy';
+};
 </script>
 </body>
 </html>
