@@ -1137,17 +1137,26 @@ function renderGL() {
 
             var bonus=parseFloat(combo.b.replace('%','').replace('+',''));
 
-            if(haveInTest===combo.p.length){
-              // ALL plants present = combo complete
-              completedCombos.push(combo);
-              rscore += bonus * 1000;
-            } else if(haveInOthers===combo.p.length-1 && testSet[rs.n]){
-              // Replacement is the missing piece
-              partialCombos.push(combo);
-              rscore += bonus * 200;
-            } else if(haveInTest>0){
-              rscore += bonus * haveInTest * 5;
-            }
+            // Check if combo was already active WITHOUT this replacement
+          var alreadyActive=true;
+          for(var pi2=0;pi2<combo.p.length;pi2++){
+            if(!stationOthers[combo.p[pi2]]){alreadyActive=false;break;}
+          }
+
+          if(haveInTest===combo.p.length && !alreadyActive){
+            // NEW combo triggered by this replacement
+            completedCombos.push(combo);
+            rscore += bonus * 1000;
+          } else if(haveInTest===combo.p.length && alreadyActive){
+            // Combo already active — still good, small bonus for maintaining it
+            rscore += bonus * 10;
+          } else if(haveInOthers===combo.p.length-1 && testSet[rs.n] && !alreadyActive){
+            // Replacement is the missing piece for a NEW combo
+            partialCombos.push(combo);
+            rscore += bonus * 200;
+          } else if(haveInTest>0 && !alreadyActive){
+            rscore += bonus * haveInTest * 5;
+          }
           }
 
           // Base XP/h score (lower weight than combo)
@@ -1163,13 +1172,15 @@ function renderGL() {
           var replColor=best.completed.length>0?'var(--green)':'var(--blue)';
           var replText='→ <strong>'+best.s.n+'</strong>';
           if(best.completed.length>0){
-            replText+=' ✨ completes ';
+            replText+=' ✨ triggers ';
             for(var ci=0;ci<best.completed.length;ci++){
               replText+=best.completed[ci].name+' '+best.completed[ci].b;
               if(ci<best.completed.length-1) replText+=' + ';
             }
+          } else if(best.partial.length>0){
+            replText+=' — almost: '+best.partial[0].name+' (need 1 more)';
           } else {
-            replText+=' (best XP/h in this station)';
+            replText+=' — best XP/h available ('+Math.round(best.s.xp*2.0*1.5/best.s.h)+' XP/h)';
           }
           replRec='<div style="font-size:11px;color:'+replColor+';margin-top:4px;padding:4px 8px;background:rgba(0,0,0,0.15);border-radius:5px;">'+replText+'</div>';
         }
