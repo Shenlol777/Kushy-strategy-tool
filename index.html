@@ -115,6 +115,32 @@ label{font-size:13px;color:var(--text2);display:block;margin-bottom:6px;}
   </div>
 </div>
 
+<script>
+// Password — runs independently, cannot be blocked by main script errors
+(function(){
+  var PW='blueberryjam777';
+  function unlock(){
+    sessionStorage.setItem('kushy_unlocked','1');
+    var s=document.getElementById('pw-screen');
+    if(s) s.style.display='none';
+  }
+  if(sessionStorage.getItem('kushy_unlocked')==='1') unlock();
+  window.checkPw=function(){
+    var val=document.getElementById('pw-input').value;
+    if(!val) return;
+    if(val===PW){ unlock(); }
+    else{
+      var inp=document.getElementById('pw-input');
+      var err=document.getElementById('pw-err');
+      if(err) err.textContent='Wrong password';
+      inp.value='';
+      inp.classList.add('shake');
+      setTimeout(function(){inp.classList.remove('shake');},400);
+    }
+  };
+})();
+</script>
+
 <header>
   <div class="logo">KUSHY <span>PROD</span></div>
   <div class="nav-tabs">
@@ -307,14 +333,15 @@ function getStrain(n){return STRAINS.find(function(s){return s.name===n;});}
 
 // ── INIT ──
 function initApp(){
-  loadInventory();
-  buildInventoryUI();
-  buildCombosUI();
-  var attic=document.querySelector('.growroom-btn[data-slots="8"]');
-  if(attic) selectGrowroom(attic);
-  else buildStationUI();
-  loadGrowLog();
-  renderGL();
+  try{loadInventory();}catch(e){}
+  try{buildInventoryUI();}catch(e){}
+  try{buildCombosUI();}catch(e){}
+  try{
+    stationPaths=['aero','aero','aero','aero','aero','aero'];
+    var attic=document.querySelector('.growroom-btn[data-slots="8"]');
+    if(attic) selectGrowroom(attic); else buildStationUI();
+  }catch(e){}
+  try{loadGrowLog();renderGL();}catch(e){}
 }
 window.onload=initApp;
 
@@ -885,31 +912,7 @@ setInterval(function(){
   });
 },1000);
 
-// ── PASSWORD ──
-(function(){
-  // Simple password check — no crypto.subtle needed
-  var PW='blueberryjam777';
-  var screen=document.getElementById('pw-screen');
-  function unlock(){
-    sessionStorage.setItem('kushy_unlocked','1');
-    if(screen) screen.style.display='none';
-  }
-  if(sessionStorage.getItem('kushy_unlocked')==='1') unlock();
-  window.checkPw=function(){
-    var val=document.getElementById('pw-input').value;
-    if(!val) return;
-    if(val===PW){
-      unlock();
-    } else {
-      var inp=document.getElementById('pw-input');
-      var err=document.getElementById('pw-err');
-      if(err) err.textContent='Wrong password';
-      inp.value='';
-      inp.classList.add('shake');
-      setTimeout(function(){inp.classList.remove('shake');},400);
-    }
-  };
-})();
+
 </script>
 </body>
 </html>
