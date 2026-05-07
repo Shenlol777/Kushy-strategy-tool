@@ -349,7 +349,7 @@ var S = [
   {n:"Gary Payton",     r:"rare",      y:1200, xp:120, h:10},
   {n:"Moon Rocks",      r:"legendary", y:6000, xp:350, h:20},
   {n:"Godfather OG",    r:"legendary", y:6000, xp:350, h:20},
-  {n:"Skywalker OG",    r:"legendary", y:6600, xp:350, h:20}
+  {n:"Skywalker OG",    r:"legendary", y:6600, xp:385, h:20}
 ];
 
 var COMBOS = [
@@ -773,14 +773,18 @@ function calculate() {
     }
   }
 
-  // Fertilizer
+  // Fertilizer — best plant = highest (XP * 1.15) as tiebreaker use yield
   var fertTarget=null;
   var bestFertXP=0;
+  var bestFertY=0;
   for (var i=0;i<alloc.length;i++) {
     var s=gs(alloc[i]); if(!s) continue;
     var Ps=PATHS[slotP[i]||domP];
     var fx=Math.round(fxp(s,Ps)*0.15);
-    if (fx>bestFertXP){bestFertXP=fx;fertTarget=s;}
+    // Tiebreaker: higher yield wins (Skywalker OG 6600 > others 6000)
+    if (fx>bestFertXP || (fx===bestFertXP && s.y>bestFertY)) {
+      bestFertXP=fx; fertTarget=s; bestFertY=s.y;
+    }
   }
   if (fert && fertTarget) sXP += FERTS*bestFertXP;
 
