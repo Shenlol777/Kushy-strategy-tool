@@ -187,17 +187,15 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   .main { padding: 1rem; }
   header { padding: 0 1rem; }
 }
-</style>
-</head>
-<body>
-<style>
+
+/* PASSWORD SCREEN */
 #pw-screen {
-  position: fixed; inset: 0; background: var(--bg, #0a0b0f);
+  position: fixed; inset: 0; background: #0a0b0f;
   display: flex; align-items: center; justify-content: center;
-  z-index: 9999; flex-direction: column; gap: 20px;
+  z-index: 9999;
 }
 #pw-box {
-  background: #111318; border: 1px solid rgba(255,255,255,0.07);
+  background: #111318; border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px; padding: 2.5rem 2rem; width: 320px;
   display: flex; flex-direction: column; align-items: center; gap: 16px;
 }
@@ -208,65 +206,21 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   background: #1a1d26; border: 1px solid rgba(255,255,255,0.13);
   color: #f0f0f0; font-size: 16px; font-family: 'Space Grotesk', sans-serif;
   outline: none; text-align: center; letter-spacing: 0.1em;
-  transition: border-color 0.15s;
 }
 #pw-input:focus { border-color: #14f195; }
-#pw-input.wrong { border-color: #ff4747; animation: shake 0.3s; }
+#pw-input.shake { animation: pwshake 0.3s; border-color: #ff4747; }
 #pw-btn {
   width: 100%; padding: 12px; border-radius: 10px;
   background: #14f195; color: #0a0f0a; font-size: 15px;
   font-weight: 700; border: none; cursor: pointer; font-family: inherit;
-  transition: opacity 0.15s;
 }
-#pw-btn:hover { opacity: 0.88; }
 #pw-err { font-size: 13px; color: #ff4747; min-height: 18px; }
-@keyframes shake {
+@keyframes pwshake {
   0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)}
 }
 </style>
-
-<div id="pw-screen">
-  <div id="pw-box">
-    <div id="pw-logo">KUSHY <span>PROD</span></div>
-    <div style="font-size:13px;color:#9098a8;">Enter password to continue</div>
-    <input id="pw-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPw()">
-    <button id="pw-btn" onclick="checkPw()">Unlock</button>
-    <div id="pw-err"></div>
-  </div>
-</div>
-
-<script>
-(function() {
-  const HASH = '232afeba16bbb27bb27d5263178f5473364906430636348c4b5ae8cb6faf1182'; // "password" — change this!
-
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  }
-
-  // Already unlocked this session?
-  if (sessionStorage.getItem('kushy_unlocked') === '1') {
-    document.getElementById('pw-screen').style.display = 'none';
-  }
-
-  window.checkPw = async function() {
-    const val = document.getElementById('pw-input').value;
-    const hash = await sha256(val);
-    if (hash === HASH) {
-      sessionStorage.setItem('kushy_unlocked', '1');
-      document.getElementById('pw-screen').style.display = 'none';
-      initApp();
-    } else {
-      const inp = document.getElementById('pw-input');
-      inp.classList.add('wrong');
-      document.getElementById('pw-err').textContent = 'Wrong password';
-      inp.value = '';
-      setTimeout(() => inp.classList.remove('wrong'), 400);
-    }
-  };
-})();
-</script>
-
+</head>
+<body>
 
 <header>
   <div class="logo">KUSHY <span>PROD</span></div>
@@ -529,11 +483,7 @@ function initApp() {
   if (defaultGrowroom) selectGrowroom(defaultGrowroom);
 }
 
-window.onload = function() {
-  if (sessionStorage.getItem('kushy_unlocked') === '1') {
-    initApp();
-  }
-};
+window.onload = initApp;
 
 // ===================== NAVIGATION =====================
 function showPage(id, btn) {
@@ -1292,6 +1242,57 @@ function tickGL(){
     if(rEl)rEl.className='plant-row-gl '+rowC;
   }));
 }
+</script>
+
+</body>
+
+<!-- PASSWORD SCREEN -->
+<div id="pw-screen">
+  <div id="pw-box">
+    <div id="pw-logo">KUSHY <span>PROD</span></div>
+    <div style="font-size:13px;color:#9098a8;text-align:center;">Enter password to continue</div>
+    <input id="pw-input" type="password" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <button id="pw-btn" onclick="checkPw()">Unlock</button>
+    <div id="pw-err"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var HASH = '232afeba16bbb27bb27d5263178f5473364906430636348c4b5ae8cb6faf1182';
+
+  function sha256(str) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function(buf) {
+      return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+    });
+  }
+
+  function unlock() {
+    sessionStorage.setItem('kushy_unlocked','1');
+    document.getElementById('pw-screen').style.display = 'none';
+  }
+
+  window.checkPw = function() {
+    var val = document.getElementById('pw-input').value;
+    sha256(val).then(function(hash) {
+      if (hash === HASH) {
+        unlock();
+      } else {
+        var inp = document.getElementById('pw-input');
+        document.getElementById('pw-err').textContent = 'Wrong password';
+        inp.value = '';
+        inp.classList.add('shake');
+        setTimeout(function(){ inp.classList.remove('shake'); }, 400);
+      }
+    });
+  };
+
+  // Check if already unlocked
+  if (sessionStorage.getItem('kushy_unlocked') === '1') {
+    unlock();
+  }
+})();
 </script>
 
 </body>
