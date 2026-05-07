@@ -893,16 +893,20 @@ setInterval(function(){
   if(sessionStorage.getItem('kushy_unlocked')==='1') unlock();
   window.checkPw=function(){
     var val=document.getElementById('pw-input').value;
+    if(!val) return;
     crypto.subtle.digest('SHA-256',new TextEncoder().encode(val)).then(function(buf){
       var hash=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-      if(hash===HASH){unlock();}
-      else{
+      if(hash===HASH){
+        unlock();
+      } else {
         var inp=document.getElementById('pw-input');
-        document.getElementById('pw-err').textContent='Wrong password';
-        inp.value='';inp.classList.add('shake');
+        var err=document.getElementById('pw-err');
+        if(err) err.textContent='Wrong password';
+        inp.value='';
+        inp.classList.add('shake');
         setTimeout(function(){inp.classList.remove('shake');},400);
       }
-    });
+    }).catch(function(e){console.error('pw hash error',e);});
   };
 })();
 </script>
