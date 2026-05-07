@@ -1084,6 +1084,60 @@ function renderGL() {
     h+='</div>';
     h+='<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;color:var(--text2);font-family:JetBrains Mono,monospace;">'+totY.toLocaleString()+' $K</span><button class="btn btn-red btn-sm" onclick="rmStation('+st.id+')">Remove</button></div></div>';
 
+    // Pre-calculate planned replacements for this station
+    // so we don't recommend the same plant twice
+    var plannedRepls={}; // name -> count already planned
+    // First pass: figure out what's being recommended for each soon/ready/late slot
+    for(var pi2=0;pi2<st.sl.length;pi2++){
+      var sl2=st.sl[pi2];
+      var stat2=glStat(sl2);
+      if(stat2!=='soon'&&stat2!=='ready'&&stat2!=='late') continue;
+
+      // Build others excluding this slot AND previously planned replacements
+      var oth2={};
+      for(var gi2=0;gi2<st.sl.length;gi2++){
+        if(gi2!==pi2&&st.sl[gi2].n) oth2[st.sl[gi2].n]=(oth2[st.sl[gi2].n]||0)+1;
+      }
+      // Subtract already planned replacements from inventory view
+      var invView2={};
+      for(var ri2=0;ri2<S.length;ri2++) invView2[S[ri2].n]=(inv[S[ri2].n]||0)-(plannedRepls[S[ri2].n]||0);
+
+      var best2=null, best2Score=-1;
+      for(var ri2=0;ri2<S.length;ri2++){
+        var rs2=S[ri2];
+        if((invView2[rs2.n]||0)<=0) continue;
+        if(rs2.r==='legendary'&&roomSlots<8) continue;
+
+        var testSet2={};
+        for(var tk2 in oth2) testSet2[tk2]=1;
+        // Also add other planned replacements to testSet
+        for(var pk in plannedRepls){
+          if(plannedRepls[pk]>0) testSet2[pk]=(testSet2[pk]||0)+1;
+        }
+        testSet2[rs2.n]=1;
+
+        var sc2=rs2.xp*2.0*1.5/rs2.h;
+        for(var ci2=0;ci2<COMBOS.length;ci2++){
+          var combo2=COMBOS[ci2]; if(combo2.p.length>5) continue;
+          var haveT=0,haveO=0;
+          for(var pp=0;pp<combo2.p.length;pp++){
+            if(testSet2[combo2.p[pp]]) haveT++;
+            if(oth2[combo2.p[pp]]) haveO++;
+          }
+          // Check not already active in original station
+          var alreadyAct=true;
+          var origSet={};
+          for(var gi3=0;gi3<st.sl.length;gi3++) if(st.sl[gi3].n) origSet[st.sl[gi3].n]=1;
+          for(var pp2=0;pp2<combo2.p.length;pp2++) if(!origSet[combo2.p[pp2]]){alreadyAct=false;break;}
+          var bonus2=parseFloat(combo2.b.replace('%','').replace('+',''));
+          if(haveT===combo2.p.length&&!alreadyAct) sc2+=bonus2*1000;
+          else if(haveO===combo2.p.length-1&&!alreadyAct) sc2+=bonus2*200;
+        }
+        if(sc2>best2Score){best2Score=sc2;best2=rs2;}
+      }
+      if(best2) plannedRepls[best2.n]=(plannedRepls[best2.n]||0)+1;
+    }
+
     for(var i=0;i<st.sl.length;i++){
       var sl=st.sl[i]; var s=gs(sl.n);
       var ms=glRem(sl); var stat=glStat(sl);
@@ -1112,7 +1166,8 @@ function renderGL() {
         var candidates=[];
         for(var ri=0;ri<S.length;ri++){
           var rs=S[ri];
-          if(!(inv[rs.n]||0)) continue;
+          var availQty=(inv[rs.n]||0)-(plannedRepls[rs.n]||0);
+          if(availQty<=0) continue;
           if(rs.r==='legendary'&&roomSlots<8) continue;
 
           // Build the station set WITH this replacement
@@ -1183,6 +1238,8 @@ function renderGL() {
             replText+=' — best XP/h available ('+Math.round(best.s.xp*2.0*1.5/best.s.h)+' XP/h)';
           }
           replRec='<div style="font-size:11px;color:'+replColor+';margin-top:4px;padding:4px 8px;background:rgba(0,0,0,0.15);border-radius:5px;">'+replText+'</div>';
+          // Mark this recommendation as planned so next slots don't repeat it
+          // (already counted in plannedRepls from pre-pass above)
         }
       }
 
