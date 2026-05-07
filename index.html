@@ -444,7 +444,7 @@ function buildInv() {
       h += '<span class="pill r-'+r+'">'+r+'</span>';
       h += '<div style="display:flex;align-items:center;gap:6px;">';
       h += '<button class="btn btn-ghost btn-sm" data-name="'+s.n+'" data-d="-1" onclick="adjQ(this.dataset.name,parseInt(this.dataset.d))">−</button>';
-      h += '<input type="number" min="0" max="99" value="'+q+'" id="q_'+k+'" style="width:52px;text-align:center;" data-name="'+s.n+'" onchange="setQ(this.dataset.name,this.value)">';
+      h += '<input type="number" min="0" max="99" value="'+q+'" id="q_'+k+'" style="width:68px;text-align:center;" data-name="'+s.n+'" onchange="setQ(this.dataset.name,this.value)">';
       h += '<button class="btn btn-ghost btn-sm" data-name="'+s.n+'" data-d="1" onclick="adjQ(this.dataset.name,parseInt(this.dataset.d))">+</button>';
       h += '</div></div>';
     }
