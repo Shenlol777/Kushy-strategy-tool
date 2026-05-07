@@ -603,7 +603,7 @@ function calculate(){
     countsByPath[key].cnt++;
   });
 
-  Object.values(countsByPath).forEach(function(item){
+  Object.keys(countsByPath).forEach(function(k){var item=countsByPath[k];
     var s=getStrain(item.name); if(!s) return;
     var Ps=PATHS[item.path];
     var xp=expXP(s,Ps,false);
