@@ -887,26 +887,27 @@ setInterval(function(){
 
 // ── PASSWORD ──
 (function(){
-  var HASH='232afeba16bbb27bb27d5263178f5473364906430636348c4b5ae8cb6faf1182';
+  // Simple password check — no crypto.subtle needed
+  var PW='blueberryjam777';
   var screen=document.getElementById('pw-screen');
-  function unlock(){sessionStorage.setItem('kushy_unlocked','1');screen.style.display='none';}
+  function unlock(){
+    sessionStorage.setItem('kushy_unlocked','1');
+    if(screen) screen.style.display='none';
+  }
   if(sessionStorage.getItem('kushy_unlocked')==='1') unlock();
   window.checkPw=function(){
     var val=document.getElementById('pw-input').value;
     if(!val) return;
-    crypto.subtle.digest('SHA-256',new TextEncoder().encode(val)).then(function(buf){
-      var hash=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-      if(hash===HASH){
-        unlock();
-      } else {
-        var inp=document.getElementById('pw-input');
-        var err=document.getElementById('pw-err');
-        if(err) err.textContent='Wrong password';
-        inp.value='';
-        inp.classList.add('shake');
-        setTimeout(function(){inp.classList.remove('shake');},400);
-      }
-    }).catch(function(e){console.error('pw hash error',e);});
+    if(val===PW){
+      unlock();
+    } else {
+      var inp=document.getElementById('pw-input');
+      var err=document.getElementById('pw-err');
+      if(err) err.textContent='Wrong password';
+      inp.value='';
+      inp.classList.add('shake');
+      setTimeout(function(){inp.classList.remove('shake');},400);
+    }
   };
 })();
 </script>
