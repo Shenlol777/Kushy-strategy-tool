@@ -842,15 +842,20 @@ function calculate() {
   for (var si=0;si<stationAllocs.length;si++) {
     var Ps=PATHS[stPaths[si]||domP];
     var syn=stSyn[si];
-    var stCombo=null;
-    for(var ti=0;ti<trig.length;ti++) if(trigStations[ti]===si){stCombo=trig[ti];break;}
+    var stCombos=[];
+    for(var ti=0;ti<trig.length;ti++) if(trigStations[ti]===si) stCombos.push(trig[ti]);
+    // Sort by bonus descending so best combo shows first
+    stCombos.sort(function(a,b){return parseFloat(b.b)-parseFloat(a.b);});
+    var stCombo=stCombos.length>0?stCombos[0]:null;
     var pathCol={soil:'var(--green)',hydro:'var(--blue)',aero:'var(--purple)'}[stPaths[si]||domP];
 
     h+='<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">';
     h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
     h+='<span style="font-size:13px;font-weight:700;">Station '+(si+1)+'</span>';
     h+='<span style="font-size:11px;padding:2px 8px;border-radius:5px;border:1px solid '+pathCol+';color:'+pathCol+';">'+(stPaths[si]||domP)+'</span>';
-    if (stCombo) h+='<span style="font-size:11px;background:var(--gbg);color:var(--green);padding:2px 8px;border-radius:5px;font-weight:700;">'+stCombo.e+' '+stCombo.name+' '+stCombo.b+'</span>';
+    for(var sc=0;sc<stCombos.length;sc++){
+      h+='<span style="font-size:11px;background:var(--gbg);color:var(--green);padding:2px 8px;border-radius:5px;font-weight:700;margin-right:4px;">'+stCombos[sc].e+' '+stCombos[sc].name+' '+stCombos[sc].b+'</span>';
+    }
     h+='</div>';
 
     // Count strains in this station
@@ -861,7 +866,8 @@ function calculate() {
       var name=stKeys[ki]; var cnt2=stCnt[name]; var s=gs(name); if(!s) continue;
       var xpc2=expc(s,Ps,false);
       var yld2=eyd(s,Ps,title,syn);
-      var isComboPlant=stCombo&&stCombo.p.indexOf(name)>=0;
+      var isComboPlant=false;
+      for(var sc2=0;sc2<stCombos.length;sc2++) if(stCombos[sc2].p.indexOf(name)>=0){isComboPlant=true;break;}
       h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">';
       h+='<span style="font-size:13px;font-weight:600;flex:1;">'+name+'</span>';
       h+='<span class="pill r-'+s.r+'">'+cnt2+'×</span>';
